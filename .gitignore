@@ -60,6 +60,7 @@ typings/
 # next.js build output
 .next
 
-# AWS config files
+# App's specific files
+www/
 config.js
 aws-variables.js
