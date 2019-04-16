@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+    <title></title>
+
+    <link href="lib/ionic/css/ionic.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+
+    <!-- IF using Sass (run gulp sass first), then uncomment below and remove the CSS includes above
+    <link href="css/ionic.app.css" rel="stylesheet">
+    -->
+
+    <!-- ionic/angularjs js -->
+    <script src="lib/ionic/js/ionic.bundle.js"></script>
+
+    <!-- cordova script (this will be a 404 during development) -->
+    <script src="cordova.js"></script>
+
+    <!-- aws sdk -->
+    <script src="lib/aws-sdk/aws-sdk.min.js"></script>
+    <script type="text/javascript" src="lib/aws-variables.js"></script>
+
+
+    <!-- utilities -->
+    <script type="text/javascript" src="lib/moment/moment.min.js"></script>
+    <script type="text/javascript" src="lib/underscore/underscore-min.js"></script>
+    <script type="text/javascript" src="lib/angular-resource/angular-resource.min.js"></script>
+    <script type="text/javascript" src="lib/angular-messages/angular-messages.min.js"></script>
+
+    <!-- AWS Cognito SDK and dependencies -->
+    <script type="text/javascript" src="lib/jsbn/jsbn.js"></script>
+    <script type="text/javascript" src="lib/jsbn/jsbn2.js"></script>
+    <script type="text/javascript" src="lib/sjcl/sjcl.js"></script>
+    <script type="text/javascript" src="lib/cognito/aws-cognito-sdk.min.js"></script>
+    <script type="text/javascript" src="lib/cognito/amazon-cognito-identity.min.js"></script>
+
+    <!-- your app's js -->
+    <script type="text/javascript" src="app.js"></script>
+    <script type="text/javascript" src="factories/utils.js"></script>
+    <script type="text/javascript" src="factories/TaskFactory.js"></script>
+    <script type="text/javascript" src="services/AuthService.js"></script>
+    <script type="text/javascript" src="Menu/MenuCtrl.js"></script>
+    <script type="text/javascript" src="Login/LoginCtrl.js"></script>
+    <script type="text/javascript" src="Confirm/ConfirmCtrl.js"></script>
+    <script type="text/javascript" src="Tasks/TasksCtrl.js"></script>
+    <script type="text/javascript" src="Tasks/TaskCtrl.js"></script>
+    <script type="text/javascript" src="About/AboutCtrl.js"></script>
+  </head>
+
+  <body ng-app="git2it">
+    <ion-nav-view></ion-nav-view>
+  </body>
+</html>

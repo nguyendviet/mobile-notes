@@ -59,3 +59,7 @@ typings/
 
 # next.js build output
 .next
+
+# AWS config files
+config.js
+aws-variables.js

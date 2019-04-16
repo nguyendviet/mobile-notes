@@ -1,0 +1,32 @@
+<ion-view view-title="Confirm Account" cache-view="false">
+    <ion-content class="login-page">
+        <div class="row">
+            <div class="full-width">
+                <img src="img/logo.png" style="width:150px;" />
+                <h4>Confirm Your Account</h4>
+                <form name="confirmForm" novalidate ng-submit="confirmAccount(newuser, confirmForm.$valid)">
+                    <div class="form-content">
+                        <div class="form-group" ng-show="errormessage">
+                            <div class="has-error">
+                                <p class="help-block">{{errormessage}}</p>
+                            </div>
+                        </div>
+                        <div class="form-group" ng-class="{ 'has-error': confirmForm.email.$touched && confirmForm.email.$invalid }">
+                            <input name="email" type="email" class="form-control input-underline input-lg" required placeholder="Email" ng-model="newuser.email" />
+                            <div class="help-block" ng-messages="confirmForm.email.$error" ng-if="confirmForm.email.$touched">
+                                <p ng-message="required">This field is required</p>
+                                <p ng-message="email">This needs to be a valid email</p>
+                            </div>
+                        </div>
+                        <div class="form-group" ng-class="{ 'has-error': confirmForm.name.$touched && confirmForm.name.$invalid }">
+                            <input name="confirmCode" type="text" class="form-control input-underline input-lg" required placeholder="Confirmation Code" ng-model="newuser.confirmCode" />
+                            <div class="help-block" ng-messages="confirmForm.confirmCode.$error" ng-if="confirmForm.confirmCode.$touched">
+                                <p ng-message="required">This field is required</p>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn rounded-btn" type="submit" ng-show="confirmForm.$valid">Confirm Account</button>
+                </form>
+        </div>
+    </ion-content>
+</ion-view>

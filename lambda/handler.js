@@ -10,7 +10,7 @@ const dynamoConfig = {
     region: process.env.AWS_REGION
 };
 const docClient = new AWS.DynamoDB.DocumentClient(dynamoConfig);
-const ddbTable = 'mobile-notes';
+const ddbTable = 'mobile-notes-table';
 /**
 * Provide an event that contains the following keys:
 *
@@ -33,8 +33,8 @@ module.exports.handler = function(event, context, callback) {
     let invalid_path_err = {
         "Error": "Invalid path request " + event.resource + ', ' + event.httpMethod
     };
-    if (event.resource === '/tasks' && event.httpMethod === "GET") {
-        console.log("listing the tasks for a user");
+    if (event.resource === '/notes' && event.httpMethod === "GET") {
+        console.log("listing the notes for a user");
         var params = {
             TableName: ddbTable,
             KeyConditionExpression: 'userid = :uid',
@@ -51,29 +51,29 @@ module.exports.handler = function(event, context, callback) {
             if (resp.Items) {
                 switch (event.queryStringParameters.filter) {
                     case "week":
-                        resp.Items = _.filter(resp.Items, function(task) {
-                            return moment(task.datedue).utc() >=
-                            moment().utc().startOf('week') && moment(task.datedue).utc() <=
+                        resp.Items = _.filter(resp.Items, function(note) {
+                            return moment(note.datedue).utc() >=
+                            moment().utc().startOf('week') && moment(note.datedue).utc() <=
                             moment().utc().endOf('week');
                         });
                     break;
                     case "today":
-                        resp.Items = _.filter(resp.Items, function(task) {
-                            return moment(task.datedue).utc() >= 
+                        resp.Items = _.filter(resp.Items, function(note) {
+                            return moment(note.datedue).utc() >= 
                             moment().utc().set('hour', '00').set('minute', '00')
                             .set('second', '00').set('millisecond', '00') 
-                            && moment(task.datedue).utc() <=
+                            && moment(note.datedue).utc() <=
                             moment().utc().set('hour', '23').set('minute', '59');
                         });
                     break;
                     case "doingnow":
-                        resp.Items = _.filter(resp.Items, function(task) {
-                            return task.stage == "Started";
+                        resp.Items = _.filter(resp.Items, function(note) {
+                            return note.stage == "Started";
                         });
                     break;
                     case "done":
-                        resp.Items = _.filter(resp.Items, function(task) {
-                            return task.stage == "Done";
+                        resp.Items = _.filter(resp.Items, function(note) {
+                            return note.stage == "Done";
                         });
                     break;
                     default:
@@ -92,16 +92,16 @@ module.exports.handler = function(event, context, callback) {
             return callback(null, _response);
         });
     } 
-    else if (event.resource === '/tasks/{taskid}' && event.httpMethod === "POST") {
-        console.log("creating a new task for a user");
-        let task = JSON.parse(event.body);
-        //create unique taskid for the new task
-        task.taskid = uuid.v4();
-        //set the created datetime stamp for the new task
-        task.createdAt = moment().utc().format();
+    else if (event.resource === '/notes/{noteid}' && event.httpMethod === "POST") {
+        console.log("creating a new note for a user");
+        let note = JSON.parse(event.body);
+        //create unique noteid for the new note
+        note.noteid = uuid.v4();
+        //set the created datetime stamp for the new note
+        note.createdAt = moment().utc().format();
         let params = {
             TableName: ddbTable,
-            Item: task
+            Item: note
         };
         docClient.put(params, function(err, data) {
             if (err) {
@@ -109,16 +109,16 @@ module.exports.handler = function(event, context, callback) {
                 _response = buildOutput(500, err);
                 return callback(_response, null);
             }
-            _response = buildOutput(200, task);
+            _response = buildOutput(200, note);
             return callback(null, _response);
         });
     } 
-    else if (event.resource === '/tasks/{taskid}' && event.httpMethod === "PUT") {
-        console.log("updating a task for a user");
-        let task = JSON.parse(event.body);
+    else if (event.resource === '/notes/{noteid}' && event.httpMethod === "PUT") {
+        console.log("updating a note for a user");
+        let note = JSON.parse(event.body);
         let params = {
             TableName: ddbTable,
-            Item: task
+            Item: note
         };
         docClient.put(params, function(err, data) {
             if (err) {
@@ -126,17 +126,17 @@ module.exports.handler = function(event, context, callback) {
                 _response = buildOutput(500, err);
                 return callback(_response, null);
             }
-            _response = buildOutput(200, task);
+            _response = buildOutput(200, note);
             return callback(null, _response);
         });
     } 
-    else if (event.resource === '/tasks/{taskid}' && event.httpMethod === "DELETE") {
-        console.log("delete a user's task");
+    else if (event.resource === '/notes/{noteid}' && event.httpMethod === "DELETE") {
+        console.log("delete a user's note");
         let params = {
             TableName: ddbTable,
             Key: {
                 userid: event.queryStringParameters.userid,
-                taskid: event.pathParameters.taskid
+                noteid: event.pathParameters.noteid
             }
         };
         docClient.delete(params, function(err, data) {
@@ -149,13 +149,13 @@ module.exports.handler = function(event, context, callback) {
             return callback(null, _response);
         });
     } 
-    else if (event.resource === '/tasks/{taskid}' && event.httpMethod === "GET") {
-        console.log("get a user's task");
+    else if (event.resource === '/notes/{noteid}' && event.httpMethod === "GET") {
+        console.log("get a user's note");
         let params = {
             TableName: ddbTable,
             Key: {
                 userid: event.queryStringParameters.userid,
-                taskid: event.pathParameters.taskid
+                noteid: event.pathParameters.noteid
             } 
         };
         docClient.get(params, function(err, data) {

@@ -1,0 +1,75 @@
+<ion-view cache-view="false" view-title="Task">
+    <ion-nav-buttons side="right">
+        <button ng-click="openEditModal()" class="button">Edit</button>
+    </ion-nav-buttons>
+    <ion-content>
+        <div class="center {{task.stage | statusColor:task.datedue}} m-t-10">
+            <div class="pull-left text-upper text-right task-stage" style='width:120px; line-height:70px; margin-right:10px;'><strong>{{task.datedue | moment:"dddd"}}</strong></div>
+            <div class="pull-left text-center task-date">
+                <div class="center p-t-15" style="font-size:38px;">{{task.datedue | moment:"D"}}</div>
+                <div class="center p-t-5">{{task.datedue | moment:"MMM"}}</div>
+            </div>
+            <div class="pull-left text-upper" style='width:120px; line-height:70px; margin-left: 10px;'>
+                <div class="task-stage" style="line-height:14px;">{{task.stage | setStatus:task.datedue}}</div>
+            </div>
+        </div>
+        <div class="center {{task.stage | statusColor:task.datedue}}">
+            <div class="task-info task-title">{{task.title}}</div>
+        </div>
+        <div class="padding-20">
+            <p>{{task.details}}</p>
+        </div>
+    </ion-content>
+    <div class="bar bar-footer center">
+        <div class="balanced-bg" ng-show="task.stage=='Started' && task.stage!='Done'" style="background-color: #4ac9b4; border-radius: 50%; margin-top:-40px; height: 70px; width:70px;">
+            <button id="task-add" ng-click="updateStage('Done')" class="button button-icon icon ion-ios-checkmark-outline pull-right"></button>
+        </div>
+        <div ng-show="task.stage!='Started' && task.stage!='Done'" style="background-color: #735ba5; border-radius: 50%; margin-top:-40px; height: 70px; width:70px;">
+            <button id="task-add" ng-click="updateStage('Started')" class="button button-icon icon ion-ios-play pull-right" style="margin-right:5px;"></button>
+        </div>
+    </div>
+    <script id="edit-task.html" type="text/ng-template">
+        <div id="edit-task" class="modal">
+            <!-- Modal header bar -->
+            <ion-header-bar class="bar-secondary">
+                <h1 class="title">Edit Task</h1>
+                <button class="button button-clear" ng-click="cancelEditModal()">Cancel</button>
+            </ion-header-bar>
+            <ion-content>
+                <form name="editTaskForm" novalidate ng-submit="closeEditModal(editTaskForm.$valid)">
+                    <div class="list">
+                        <label class="item item-input" ng-class="{ 'has-error': editTaskForm.title.$touched && editTaskForm.title.$invalid }">
+                            <span class="input-label">Title</span>
+                            <div class="help-block" ng-messages="editTaskForm.title.$error" ng-if="editTaskForm.title.$touched">
+                                <p ng-message="required">*</p>
+                            </div>
+                            <input name="title" type="text" class="text-right" required placeholder="Task Name" ng-model="task.title" />
+                        </label>
+                        <label class="item item-input" ng-class="{ 'has-error': editTaskForm.datedue.$touched && editTaskForm.datedue.$invalid }">
+                            <span class="input-label">Due Date</span>
+                            <div class="help-block" ng-messages="editTaskForm.datedue.$error" ng-if="editTaskForm.datedue.$touched">
+                                <p ng-message="required">*</p>
+                            </div>
+                            <input name="datedue" type="date" class="text-right" required placeholder="Due date for task" ng-model="task.datedue" />
+                        </label>
+                        <label class="item item-input item-select">
+                            <div class="input-label">Status</div>
+                            <select ng-model="task.stage">
+                                <option>Not Started</option>
+                                <option>Started</option>
+                                <option>Done</option>
+                            </select>
+                        </label>
+                        <label class="item item-input item-stacked-label">
+                            <span class="input-label" style="font-size: 14px;">Details</span>
+                            <textarea ng-maxlength="500" ng-model="task.details" style="min-height:250px;" placeholder="Enter details for your task." ></textarea>
+                        </label>
+                    </div>
+                    <div class="padding">
+                        <button id="btnCreateTask" type="submit" class="button button-block button-outline button-secondary" ng-disabled="editTaskForm.$invalid">Save Task</button>
+                    </div>
+                </form>
+            </ion-content>
+        </div>
+    </script>
+</ion-view>
