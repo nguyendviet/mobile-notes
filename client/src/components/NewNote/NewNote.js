@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { Form, FormGroup, Label, Input } from "reactstrap";
+import { API, Auth } from 'aws-amplify';
 import LoaderBtn from "../LoaderBtn";
 import config from "../../lib/aws-variables";
 import "./NewNote.css";
@@ -12,8 +13,22 @@ export default class NewNote extends Component {
 
         this.state = {
             isLoading: null,
-            content: ""
+            content: "",
+            username: "",
+            token: ""
         };
+    }
+
+    async componentDidMount() {
+        // Get the current user token and user name from Cognito
+        Auth.currentAuthenticatedUser().then((res) => {
+            const username = res.username;
+            const token = res.signInUserSession.idToken.jwtToken;
+            this.setState({
+                username: username, 
+                token: token
+            });
+        });
     }
 
     validateForm() {
@@ -32,13 +47,34 @@ export default class NewNote extends Component {
 
     handleSubmit = async event => {
         event.preventDefault();
-
+      
         if (this.file && this.file.size > config.MAX_ATTACHMENT_SIZE) {
             alert(`Please pick a file smaller than ${config.MAX_ATTACHMENT_SIZE/1000000} MB.`);
             return;
         }
-
+      
         this.setState({ isLoading: true });
+      
+        try {
+            await this.createNote(this.state.content);
+            this.props.history.push("/");
+        } catch (e) {
+            alert(e);
+            this.setState({ isLoading: false });
+        }
+    }
+
+    createNote(content) {
+        return API.post("notes", "/notes/{noteid}", {
+            headers: {
+                "Authorization": this.state.token
+            },
+            body: {
+                userid: this.state.username,
+                noteid: "new",
+                content: content
+            }
+        });
     }
 
     render() {

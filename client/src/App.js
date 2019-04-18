@@ -1,17 +1,9 @@
 import React, { Component, Fragment } from 'react';
 import { withRouter } from "react-router-dom";
 import {
-    Collapse,
     Navbar,
-    NavbarToggler,
-    NavbarBrand,
     Nav,
-    NavItem,
-    NavLink,
-    UncontrolledDropdown,
-    DropdownToggle,
-    DropdownMenu,
-    DropdownItem 
+    NavLink
 } from 'reactstrap';
 import { LinkContainer } from "react-router-bootstrap";
 import { Auth } from "aws-amplify";
@@ -30,13 +22,13 @@ class App extends Component {
 
     async componentDidMount() {
         try {
-          await Auth.currentSession();
-          this.userHasAuthenticated(true);
+            await Auth.currentSession();
+            this.userHasAuthenticated(true);
         }
         catch(e) {
-          if (e !== 'No current user') {
-            alert(e);
-          }
+            if (e !== 'No current user') {
+                alert(e);
+            }
         }
         this.setState({ isAuthenticating: false });
     }
