@@ -16,13 +16,22 @@ class App extends Component {
         
         this.state = {
             isAuthenticated: false,
-            isAuthenticating: true
+            isAuthenticating: true,
+            userid: '',
+            token: ''
         };
     }
 
     async componentDidMount() {
         try {
-            await Auth.currentSession();
+            // Get current user details
+            const auth = await Auth.currentAuthenticatedUser();
+            const userid = auth.username;
+            const token = auth.signInUserSession.idToken.jwtToken;
+            this.setState({
+                userid: userid,
+                token: token
+            });
             this.userHasAuthenticated(true);
         }
         catch(e) {
@@ -46,7 +55,9 @@ class App extends Component {
     render() {
         const childProps = {
             isAuthenticated: this.state.isAuthenticated,
-            userHasAuthenticated: this.userHasAuthenticated
+            userHasAuthenticated: this.userHasAuthenticated,
+            userid: this.state.userid,
+            token: this.state.token
         };
           
         return (

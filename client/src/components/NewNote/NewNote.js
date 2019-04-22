@@ -14,23 +14,21 @@ export default class NewNote extends Component {
 
         this.state = {
             isLoading: null,
-            content: "",
-            username: "",
-            token: ""
+            content: ""
         };
     }
 
-    async componentDidMount() {
-        // Get the current user token and user name from Cognito
-        Auth.currentAuthenticatedUser().then((res) => {
-            const username = res.username;
-            const token = res.signInUserSession.idToken.jwtToken;
-            this.setState({
-                username: username, 
-                token: token
-            });
-        });
-    }
+    // async componentDidMount() {
+    //     // Get the current user token and user name from Cognito
+    //     Auth.currentAuthenticatedUser().then((res) => {
+    //         const username = res.username;
+    //         const token = res.signInUserSession.idToken.jwtToken;
+    //         this.setState({
+    //             username: username, 
+    //             token: token
+    //         });
+    //     });
+    // }
 
     validateForm() {
         return this.state.content.length > 0;
@@ -76,10 +74,10 @@ export default class NewNote extends Component {
     createNote(e) {
         return API.post("notes", "/notes/{noteid}", {
             headers: {
-                "Authorization": this.state.token
+                "Authorization": this.props.token
             },
             body: {
-                userid: this.state.username,
+                userid: this.props.userid,
                 noteid: "new",
                 content: e.content,
                 attachment: e.attachment
