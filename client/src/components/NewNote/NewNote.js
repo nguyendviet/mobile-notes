@@ -3,6 +3,7 @@ import { Form, FormGroup, Label, Input } from "reactstrap";
 import { API, Auth } from 'aws-amplify';
 import LoaderBtn from "../LoaderBtn";
 import config from "../../lib/aws-variables";
+import { s3Upload } from "../../lib/awsLib";
 import "./NewNote.css";
 
 export default class NewNote extends Component {
@@ -56,13 +57,21 @@ export default class NewNote extends Component {
         this.setState({ isLoading: true });
       
         try {
-            await this.createNote(this.state.content);
+            const attachment = this.file
+                ? await s3Upload(this.file)
+                : null;
+        
+            await this.createNote({
+                attachment,
+                content: this.state.content
+            });
             this.props.history.push("/");
-        } catch (e) {
+        } 
+        catch (e) {
             alert(e);
             this.setState({ isLoading: false });
         }
-    }
+    }  
 
     createNote(content) {
         return API.post("notes", "/notes/{noteid}", {
