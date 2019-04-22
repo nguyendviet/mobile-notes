@@ -73,7 +73,7 @@ export default class NewNote extends Component {
         }
     }  
 
-    createNote(content) {
+    createNote(e) {
         return API.post("notes", "/notes/{noteid}", {
             headers: {
                 "Authorization": this.state.token
@@ -81,7 +81,8 @@ export default class NewNote extends Component {
             body: {
                 userid: this.state.username,
                 noteid: "new",
-                content: content
+                content: e.content,
+                attachment: e.attachment
             }
         });
     }
