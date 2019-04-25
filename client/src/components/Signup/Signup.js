@@ -12,9 +12,9 @@ import "./Signup.css";
 
 export default class Signup extends Component {
     constructor(props) {
-            super(props);
+        super(props);
 
-            this.state = {
+        this.state = {
             isLoading: false,
             email: "",
             password: "",
@@ -48,15 +48,15 @@ export default class Signup extends Component {
         this.setState({ isLoading: true });
     
         try {
-        const newUser = await Auth.signUp({
-            username: this.state.email,
-            password: this.state.password
-        });
-        this.setState({
-            newUser
-        });
+            const newUser = await Auth.signUp({
+                username: this.state.email,
+                password: this.state.password
+            });
+            this.setState({
+                newUser
+            });
         } catch (e) {
-            alert(e.message);
+            console.log(e.message);
         }
     
         this.setState({ isLoading: false });
@@ -74,7 +74,7 @@ export default class Signup extends Component {
             this.props.userHasAuthenticated(true);
             this.props.history.push("/");
         } catch (e) {
-            alert(e.message);
+            console.log(e.message);
             this.setState({ isLoading: false });
         }
     }

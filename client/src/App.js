@@ -24,7 +24,6 @@ class App extends Component {
         try {
             await Auth.currentSession();
             this.userHasAuthenticated(true);
-            this.props.history.push("/profile");
         }
         catch(e) {
             if (e !== 'not authenticated') {
