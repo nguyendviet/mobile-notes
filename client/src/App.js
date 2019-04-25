@@ -7,7 +7,7 @@ import {
 } from 'reactstrap';
 import { LinkContainer } from "react-router-bootstrap";
 import { Auth } from "aws-amplify";
-import Routes from "./components/Routes";
+import {Routes} from "./components/routes";
 import './App.css';
 
 class App extends Component {
@@ -16,30 +16,21 @@ class App extends Component {
         
         this.state = {
             isAuthenticated: false,
-            isAuthenticating: true,
-            userid: '',
-            token: ''
+            isAuthenticating: true
         };
     }
 
     async componentDidMount() {
         try {
-            // Get current user details
-            const auth = await Auth.currentAuthenticatedUser();
-            const userid = auth.username;
-            const token = auth.signInUserSession.idToken.jwtToken;
-            this.setState({
-                userid: userid,
-                token: token
-            });
+            await Auth.currentSession();
             this.userHasAuthenticated(true);
+            this.props.history.push("/profile");
         }
         catch(e) {
-            if (e !== 'No current user') {
-                alert(e);
+            if (e !== 'not authenticated') {
+                console.log(e);
             }
         }
-        this.setState({ isAuthenticating: false });
     }
         
     userHasAuthenticated = authenticated => {
@@ -51,13 +42,16 @@ class App extends Component {
         this.userHasAuthenticated(false);
         this.props.history.push("/login");
     }
+
+    saveCurrentUser = (user) => {
+        console.log(user);
+    }
       
     render() {
         const childProps = {
             isAuthenticated: this.state.isAuthenticated,
             userHasAuthenticated: this.userHasAuthenticated,
-            userid: this.state.userid,
-            token: this.state.token
+            saveCurrentUser: this.saveCurrentUser
         };
           
         return (

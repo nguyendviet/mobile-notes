@@ -10,7 +10,7 @@ export default class Home extends Component {
     
         this.state = {
             isLoading: true,
-            notes: []
+            notes: [],
         };
     }
 
@@ -19,26 +19,32 @@ export default class Home extends Component {
             return;
         }
 
-        try {
-            const result = await this.notes();
-            const notes = result.Items;
-            console.log(notes);
-            this.setState({ notes });
-        } 
-        catch (e) {
-            alert(e);
-        }
+        // const auth = await Auth.currentAuthenticatedUser();
+        // const userid = auth.username;
+        // const token = auth.signInUserSession.idToken.jwtToken;
+        // this.setState({userid: userid, token: token});
+        // // console.log(this.state);
+
+        // try {
+        //     const result = await this.notes();
+        //     const notes = result.Items;
+        //     this.setState({ notes });
+        // } 
+        // catch (e) {
+        //     console.log(e);
+        // }
       
         this.setState({ isLoading: false });
     }
 
     notes() {
-        return API.get("notes", "/notes", {
-            headers: {
-                "Authorization": this.props.token
-            },
-            queryStringParameters: {userid: this.props.userid}
-        });
+        return API.get("notes", "/notes");
+        // return API.get("notes", "/notes", {
+        //     headers: {
+        //         "Authorization": this.props.token
+        //     },
+        //     queryStringParameters: {userid: this.props.userid}
+        // });
     }      
   
     renderNotesList(notes) {
@@ -87,6 +93,7 @@ export default class Home extends Component {
     }
   
     render() {
+        // console.log(this.props);
         return (
             <div className="Home">
             {this.props.isAuthenticated ? this.renderNotes() : this.renderLander()}
