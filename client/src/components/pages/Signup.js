@@ -78,7 +78,6 @@ export default class Signup extends Component {
             this.setState({ isLoading: false });
         }
     }
-    
 
     renderConfirmationForm() {
         return (
