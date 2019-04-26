@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { API, Storage } from "aws-amplify";
+import { API, Auth, Storage } from "aws-amplify";
 
 export default class Notes extends Component {
     constructor(props) {
@@ -18,7 +18,10 @@ export default class Notes extends Component {
         try {
             let attachmentURL;
             const note = await this.getNote();
-            const { content, attachment } = note;
+            const { content, attachment } = note.Item;
+            console.log(note);
+            console.log(content);
+            console.log(attachment);
 
             if (attachment) {
                 attachmentURL = await Storage.vault.get(attachment);
@@ -35,8 +38,19 @@ export default class Notes extends Component {
         }
     }
 
-    getNote() {
-        return API.get("notes", `/notes/${this.props.match.params.id}`);
+    async getNote() {
+        const auth = await Auth.currentAuthenticatedUser();
+        const userid = auth.username;
+        const token = auth.signInUserSession.idToken.jwtToken;
+        const noteid = this.props.match.params.id;
+
+        return API.get("notes", `/notes/${noteid}/`, {
+            headers: {
+                "Authorization": token
+            },
+            queryStringParameters: {userid: userid},
+            pathParameters: {noteid: noteid}
+        });
     }
 
     render() {

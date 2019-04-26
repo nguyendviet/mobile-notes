@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Form, FormGroup, Label, Input } from "reactstrap";
-import { API, Auth } from 'aws-amplify';
+import { API } from 'aws-amplify';
 import LoaderBtn from "../LoaderBtn";
 import config from "../../lib/aws-variables";
 import { s3Upload } from "../../lib/awsLib";
@@ -17,18 +17,6 @@ export default class NewNote extends Component {
             content: ""
         };
     }
-
-    // async componentDidMount() {
-    //     // Get the current user token and user name from Cognito
-    //     Auth.currentAuthenticatedUser().then((res) => {
-    //         const username = res.username;
-    //         const token = res.signInUserSession.idToken.jwtToken;
-    //         this.setState({
-    //             username: username, 
-    //             token: token
-    //         });
-    //     });
-    // }
 
     validateForm() {
         return this.state.content.length > 0;
