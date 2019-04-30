@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { API, Auth, Storage } from "aws-amplify";
 import {Form, FormGroup, Input, Label} from "reactstrap";
+import moment from "moment";
 import { s3Upload } from "../../lib/awsLib";
 import LoaderBtn from '../LoaderBtn';
 import config from '../../lib/aws-variables';
@@ -37,8 +38,6 @@ export default class Notes extends Component {
                 content,
                 attachmentURL
             });
-            console.log('this state:');
-            console.log(this.state);
         } 
         catch (e) {
             console.log(e);
@@ -92,7 +91,9 @@ export default class Notes extends Component {
                 userid: userid,
                 noteid: noteid,
                 content: note.content,
-                attachment: note.attachment
+                attachment: note.attachment,
+                createdAt: this.state.note.createdAt,
+                editedAt: moment().utc().format()
             }
         });
     }
@@ -126,6 +127,21 @@ export default class Notes extends Component {
         }
     }
     
+    async deleteNote() {
+        const auth = await Auth.currentAuthenticatedUser();
+        const userid = auth.username;
+        const token = auth.signInUserSession.idToken.jwtToken;
+        const noteid = this.props.match.params.id;
+
+        return API.del("notes", `/notes/${noteid}/`, {
+            headers: {
+                "Authorization": token
+            },
+            queryStringParameters: {userid: userid},
+            pathParameters: {noteid: noteid}
+        });
+    }
+    
     handleDelete = async event => {
         event.preventDefault();
         
@@ -138,7 +154,16 @@ export default class Notes extends Component {
         }
         
         this.setState({ isDeleting: true });
+        
+        try {
+            await this.deleteNote();
+            this.props.history.push("/");
+        } catch (e) {
+            alert(e);
+            this.setState({ isDeleting: false });
+        }
     }
+      
     
     render() {
         return (

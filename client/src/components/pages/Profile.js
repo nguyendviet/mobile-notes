@@ -43,7 +43,10 @@ export default class Profile extends Component {
             >
                 <ListGroupItem>
                     <h4>{note.content.trim().split("\n")[0]}</h4>
-                    <div>{"Created: " + new Date(note.createdAt).toLocaleString()}</div>
+                    <div>
+                        {"Created: " + new Date(note.createdAt).toLocaleString()}
+                        {note.editedAt ? " - Edited: " + new Date(note.editedAt).toLocaleString() : null}
+                    </div>
                 </ListGroupItem>
             </LinkContainer>
             : <LinkContainer

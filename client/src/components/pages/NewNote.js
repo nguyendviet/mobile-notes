@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Form, FormGroup, Label, Input } from "reactstrap";
-import { API } from 'aws-amplify';
+import { API, Auth } from 'aws-amplify';
 import LoaderBtn from "../LoaderBtn";
 import config from "../../lib/aws-variables";
 import { s3Upload } from "../../lib/awsLib";
@@ -59,13 +59,18 @@ export default class NewNote extends Component {
         }
     }  
 
-    createNote(e) {
+    async createNote(e) {
+        const auth = await Auth.currentAuthenticatedUser();
+        const userid = auth.username;
+        const token = auth.signInUserSession.idToken.jwtToken;
+        const noteid = this.props.match.params.id;
+
         return API.post("notes", "/notes/{noteid}", {
             headers: {
-                "Authorization": this.props.token
+                "Authorization": token
             },
             body: {
-                userid: this.props.userid,
+                userid: userid,
                 noteid: "new",
                 content: e.content,
                 attachment: e.attachment
