@@ -93,7 +93,7 @@ export default class NewNote extends Component {
                     </FormGroup>
                     <LoaderBtn
                         block
-                        bsstyle="primary"
+                        color="primary"
                         bssize="large"
                         disabled={!this.validateForm()}
                         type="submit"

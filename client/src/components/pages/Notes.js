@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { API, Auth, Storage } from "aws-amplify";
 import {Form, FormGroup, Input, Label} from "reactstrap";
+import { s3Upload } from "../../lib/awsLib";
 import LoaderBtn from '../LoaderBtn';
 import config from '../../lib/aws-variables';
 import './Notes.css';
@@ -26,14 +27,9 @@ export default class Notes extends Component {
             const data = await this.getNote();
             const note = data.Item;
             const { content, attachment } = note;
-            // const note = await this.getNote();
-            // const { content, attachment } = note.Item;
-            // console.log('attachment:');
-            // console.log(attachment);
 
             if (attachment) {
                 attachmentURL = await Storage.vault.get(attachment);
-                // console.log(`attachment ULR: ${attachmentURL}`);
             }
 
             this.setState({
@@ -82,7 +78,28 @@ export default class Notes extends Component {
         this.file = event.target.files[0];
     }
     
+    async saveNote(note) {
+        const auth = await Auth.currentAuthenticatedUser();
+        const userid = auth.username;
+        const token = auth.signInUserSession.idToken.jwtToken;
+        const noteid = this.props.match.params.id;
+
+        return API.put("notes", `/notes/{noteid}`, {
+            headers: {
+                "Authorization": token
+            },
+            body: {
+                userid: userid,
+                noteid: noteid,
+                content: note.content,
+                attachment: note.attachment
+            }
+        });
+    }
+    
     handleSubmit = async event => {
+        let attachment;
+        
         event.preventDefault();
         
         if (this.file && this.file.size > config.MAX_ATTACHMENT_SIZE) {
@@ -91,6 +108,22 @@ export default class Notes extends Component {
         }
         
         this.setState({ isLoading: true });
+        
+        try {
+            if (this.file) {
+                attachment = await s3Upload(this.file);
+            }
+        
+            await this.saveNote({
+                content: this.state.content,
+                attachment: attachment || this.state.note.attachment
+            });
+            this.props.history.push("/");
+        } 
+        catch (e) {
+            alert(e);
+            this.setState({ isLoading: false });
+        }
     }
     
     handleDelete = async event => {
@@ -144,7 +177,7 @@ export default class Notes extends Component {
                     </FormGroup>
                     <LoaderBtn
                         block
-                        bsstyle="primary"
+                        color="primary"
                         bssize="large"
                         disabled={!this.validateForm()}
                         type="submit"
@@ -154,7 +187,7 @@ export default class Notes extends Component {
                     />
                     <LoaderBtn
                         block
-                        bsstyle="danger"
+                        color="danger"
                         bssize="large"
                         isLoading={this.state.isDeleting}
                         onClick={this.handleDelete}

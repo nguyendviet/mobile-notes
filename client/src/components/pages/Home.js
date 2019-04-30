@@ -29,7 +29,8 @@ export default class Home extends Component {
                     key={note.noteid}
                     to={`/notes/${note.noteid}`}
                 >
-                    <ListGroupItem header={note.content.trim().split("\n")[0]}>
+                    <ListGroupItem>
+                        <div>{note.content.trim().split("\n")[0]}</div>
                     {"Created: " + new Date(note.createdAt).toLocaleString()}
                     </ListGroupItem>
                 </LinkContainer>

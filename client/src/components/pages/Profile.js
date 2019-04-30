@@ -41,8 +41,9 @@ export default class Profile extends Component {
                 key={note.noteid}
                 to={`/notes/${note.noteid}`}
             >
-                <ListGroupItem header={note.content.trim().split("\n")[0]}>
-                {"Created: " + new Date(note.createdAt).toLocaleString()}
+                <ListGroupItem>
+                    <h4>{note.content.trim().split("\n")[0]}</h4>
+                    <div>{"Created: " + new Date(note.createdAt).toLocaleString()}</div>
                 </ListGroupItem>
             </LinkContainer>
             : <LinkContainer
