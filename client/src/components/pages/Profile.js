@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import { API, Auth, Storage } from "aws-amplify";
-import { ListGroup, ListGroupItem } from "reactstrap";
+import { API, Auth } from "aws-amplify";
+import { ListGroupItem } from "reactstrap";
 import { LinkContainer } from "react-router-bootstrap";
 
 export default class Profile extends Component {
@@ -33,9 +33,15 @@ export default class Profile extends Component {
         }
     }
 
+    sortNotes(array) {
+        return array.sort((a, b) => {
+            return new Date(b.createdAt) - new Date(a.createdAt);
+        });
+    }
+
     renderNotesList(notes) {
-        // TODO: Fix concat()
-        return [{}].concat(notes).map((note, i) =>
+        const noteList = this.sortNotes([{}, ...notes]);
+        return noteList.map((note, i) =>
             i !== 0
             ? <LinkContainer
                 key={note.noteid}

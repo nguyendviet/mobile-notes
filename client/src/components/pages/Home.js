@@ -1,7 +1,4 @@
 import React, { Component } from "react";
-import { API, Auth } from "aws-amplify";
-import { ListGroup, ListGroupItem } from "reactstrap";
-import { LinkContainer } from "react-router-bootstrap";
 import {Profile} from '../pages';
 import "./Home.css";
 

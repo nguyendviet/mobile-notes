@@ -63,7 +63,6 @@ export default class NewNote extends Component {
         const auth = await Auth.currentAuthenticatedUser();
         const userid = auth.username;
         const token = auth.signInUserSession.idToken.jwtToken;
-        const noteid = this.props.match.params.id;
 
         return API.post("notes", "/notes/{noteid}", {
             headers: {

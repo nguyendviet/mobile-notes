@@ -1,5 +1,5 @@
 import React from "react";
-import {BrowserRouter as Route, Switch} from 'react-router-dom';
+import {Switch} from 'react-router-dom';
 import {Home, Login, NewNote, Notes, NotFound, ResetPassword, Signup} from '../pages';
 import AppliedRoute from './AppliedRoute';
 import AuthenticatedRoute from "./AuthenticatedRoute";
