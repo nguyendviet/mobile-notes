@@ -80,7 +80,7 @@ This app is a combination of the back-end code from AWS Blog [AWS Mobile App Bac
 ## Differences 
 from [AWS Blog](https://aws.amazon.com/blogs/mobile/aws-mobile-app-backend-with-hybrid-apps/) and Serverless-Stack.com
 
-- The front-end code ([Ionic framework](https://ionicframework.com/)) from Amazon Solution Architects is outdated. Since the blog was written in 2016, Ionic has changed the folder structure amongst other things so I wasn't able to make the code from Amazon work with the current Ionic framework.
+- The front-end code ([Ionic framework](https://ionicframework.com/)) from Amazon Blog is outdated. Since 2016 when the blog was written, Ionic has changed the folder structure amongst other things so I wasn't able to make the code from Amazon work with the current Ionic framework.
 - At the time of this documentation (April 2019), Ionic has released a beta version for React. However, it seems more complicated than it should be and I'm more familiar with React than Angular (which is originally supported by Inonic) so I decided to use the front-end code from Serverless-Stack.com. If you want to develop your own mobile app, consider using [React Native](https://facebook.github.io/react-native/).
 - Serverless-Stack.com uses [Serverless Framework](https://www.npmjs.com/package/serverless) to develop their Lambda code but I want to stick with AWS so I use AWS Blog's code. You can use [AWS SAM](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html) to develop and troubleshoot your Lambda functions.
 - I also changed the folder structure of the React app (`./client/`) and some variable names.
@@ -99,8 +99,8 @@ from [AWS Blog](https://aws.amazon.com/blogs/mobile/aws-mobile-app-backend-with-
 
 ## Author(s)
 
-* <b>Viet Nguyen</b>
-    > vnguyen@ndi.org &nbsp;&middot;&nbsp;
-    > [LinkedIn](https://www.linkedin.com/in/nguyendviet)
+- <b>Viet Nguyen</b>:
+    vnguyen@ndi.org &nbsp;&middot;&nbsp;
+    [LinkedIn](https://www.linkedin.com/in/nguyendviet)
 
 **[⬆ back to top](#documentation)**
