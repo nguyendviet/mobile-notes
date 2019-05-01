@@ -22,7 +22,7 @@ This app is a combination of the back-end code from AWS Blog [AWS Mobile App Bac
 1. Amazon API Gateway is natively integrated with Amazon Cognito User Pools so the validation of the JWT requires no additional effort from the application developer. Amazon API Gateway then invokes an AWS Lambda function that accesses other AWS services, which in this case is Amazon DynamoDB. 
 1. When AWS Lambda is invoked, it assumes an AWS Identity and Access Management (IAM) role. The IAM role determines the level of access that AWS Lambda has to Amazon DynamoDB. 
 
-<div><img/>Diagram</div>
+<div><img src="./docs/app-diagram.png" alt="App diagram"/></div>
 
 ## Installation
 
@@ -61,7 +61,8 @@ This app is a combination of the back-end code from AWS Blog [AWS Mobile App Bac
         "httpMethod": "PUT",
         "body": "{\"userid\": \"user2\", \"noteid\": \"note2\", \"content\": \"note 2 content has been updated!\"}"
     }
-    // GET with specific userid and noteid. I recommend you use your real userid and noteid to test after succesffully created a user from React app.
+    // GET with specific userid and noteid. 
+    // I recommend you use your real userid and noteid to test after succesffully created a user from React app.
     {
         "resource": "/notes/{noteid}",
         "httpMethod": "GET",
@@ -83,7 +84,16 @@ from [AWS Blog](https://aws.amazon.com/blogs/mobile/aws-mobile-app-backend-with-
 - At the time of this documentation (April 2019), Ionic has released a beta version for React. However, it seems more complicated than it should be and I'm more familiar with React than Angular (which is originally supported by Inonic) so I decided to use the front-end code from Serverless-Stack.com. If you want to develop your own mobile app, consider using [React Native](https://facebook.github.io/react-native/).
 - Serverless-Stack.com uses [Serverless Framework](https://www.npmjs.com/package/serverless) to develop their Lambda code but I want to stick with AWS so I use AWS Blog's code. You can use [AWS SAM](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html) to develop and troubleshoot your Lambda functions.
 - I also changed the folder structure of the React app (`./client/`) and some variable names.
-- Serverless-Stack.com only secure their routes, not their API URLs, that's why I implemented Cognito User Pool authorizer from Amazon and edited the front end code so that every API call must include a token.
+- Serverless-Stack.com only secure their routes, not their API URLs, that's why I implemented Cognito User Pool authorizer from Amazon and edited the front end code so that every API call must include a token. For example:
+    ```
+    return API.get("notes", `/notes/${noteid}/`, {
+        headers: {
+            "Authorization": token
+        },
+        queryStringParameters: {userid: userid},
+        pathParameters: {noteid: noteid}
+    });
+    ```
 - There's a lot more from Serverless-Stack.com like Automating Serverless deployments and Code Splitting in Create React App, you should definitely check it out.
 
 ## Author(s)
