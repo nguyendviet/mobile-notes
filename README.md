@@ -10,7 +10,7 @@ This app does the following:
 - Use AWS Lambda with API Gateway which is secured by Cognito User Pool authorizer.
 - Follow best practices, architectural guidance, and considerations for using managed services on the AWS Cloud to simplify development of RESTful backend services.
 
-This app is a combination of the back-end code from AWS Blog [AWS Mobile App Backend with Hybrid Apps](https://aws.amazon.com/blogs/mobile/aws-mobile-app-backend-with-hybrid-apps/) ([pdf link](https://s3.amazonaws.com/solutions-reference/mobile-backend/latest/mobile-app-backend.pdf)) and the front-end code from the website serverless-stack.com with some [differences](#differences).
+This app is a combination of the back-end code from AWS Blog [AWS Mobile App Backend with Hybrid Apps](https://aws.amazon.com/blogs/mobile/aws-mobile-app-backend-with-hybrid-apps/) ([pdf link](https://s3.amazonaws.com/solutions-reference/mobile-backend/latest/mobile-app-backend.pdf)) and the front-end code from the website [serverless-stack.com](https://serverless-stack.com/) with some [differences](#differences).
 
 *Why I use other people's code? To quickly prove a concept, I don't need to reinvent the wheel. The goal of this app is to learn how to successfully build a secure serverless app following AWS best practices.*
 
@@ -31,7 +31,7 @@ This app is a combination of the back-end code from AWS Blog [AWS Mobile App Bac
     $ git clone git@github.com:nguyendviet/mobile-notes.git
     $ cd mobile-notes
     ```
-1. [Create and deploy Lambda, API Gateway and DynamoDB](https://s3.amazonaws.com/solutions-reference/mobile-backend/latest/mobile-app-backend.pdf). The Lambda code is in this repository: `./lambda/`.
+1. [Create and deploy Lambda, API Gateway and DynamoDB with execution roles](https://s3.amazonaws.com/solutions-reference/mobile-backend/latest/mobile-app-backend.pdf). The Lambda code is in this repository: `./lambda/`.
 1. [Create AWS Cognito User Pools](https://serverless-stack.com/chapters/create-a-cognito-user-pool.html).
 1. Follow the steps on Serverless-Stack.com to create your React app or use the code in this repository: `./client/`.
 1. Once you've set up Lambda, API Gateway, DynamoDB and Cognito, you can set up your own `aws-variables.js` file which should look like: `./client/src/lib/aws-variables.js-example`.
@@ -84,6 +84,7 @@ from [AWS Blog](https://aws.amazon.com/blogs/mobile/aws-mobile-app-backend-with-
 - At the time of this documentation (April 2019), Ionic has released a beta version for React. However, it seems more complicated than it should be and I'm more familiar with React than Angular (which is originally supported by Inonic) so I decided to use the front-end code from Serverless-Stack.com. If you want to develop your own mobile app, consider using [React Native](https://facebook.github.io/react-native/).
 - Serverless-Stack.com uses [Serverless Framework](https://www.npmjs.com/package/serverless) to develop their Lambda code but I want to stick with AWS so I use AWS Blog's code. You can use [AWS SAM](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html) to develop and troubleshoot your Lambda functions.
 - I also changed the folder structure of the React app (`./client/`) and some variable names.
+- I use [reacstrap](https://www.npmjs.com/package/reactstrap) (which uses [Bootstrap 4](https://getbootstrap.com/)) instead of [react-bootstrap](https://www.npmjs.com/package/react-bootstrap) (which uses [Bootstrap 3](https://getbootstrap.com/docs/3.3/)).
 - Serverless-Stack.com only secure their routes, not their API URLs, that's why I implemented Cognito User Pool authorizer from Amazon and edited the front end code so that every API call must include a token. For example:
     ```
     return API.get("notes", `/notes/${noteid}/`, {
