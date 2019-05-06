@@ -1,10 +1,13 @@
 {
     "AWSTemplateFormatVersion" : "2010-09-09",
-    "Description" : "This template sets up Application Auto Scaling for a AWS::DynamoDB::Table resource. The template defines a TargetTrackingScaling scaling policy that scales up the WriteCapacityUnits throughput for the table.",
+    "Description" : "This template: - Sets up Application Auto Scaling for a AWS::DynamoDB::Table resource. The template defines a TargetTrackingScaling scaling policy that scales up the WriteCapacityUnits throughput for the table. - Exports the table ARN.",
     "Resources": {
         "DDBTable": {
             "Type": "AWS::DynamoDB::Table",
             "Properties": {
+                "TableName": {
+                    "Fn::Sub": "${AWS::StackName}-table"
+                },
                 "AttributeDefinitions": [
                     {
                         "AttributeName": "userid",
@@ -12,22 +15,6 @@
                     },
                     {
                         "AttributeName": "noteid",
-                        "AttributeType": "S"
-                    },
-                    {
-                        "AttributeName": "content",
-                        "AttributeType": "S"
-                    },
-                    {
-                        "AttributeName": "createdAt",
-                        "AttributeType": "S"
-                    },
-                    {
-                        "AttributeName": "editedAt",
-                        "AttributeType": "S"
-                    },
-                    {
-                        "AttributeName": "content",
                         "AttributeType": "S"
                     }
                 ],
@@ -41,24 +28,6 @@
                         "KeyType": "RANGE"
                     }
                 ],
-                "GlobalSecondaryIndexes": [
-                    {
-                        "IndexName": "GSI",
-                        "KeySchema": [
-                            {
-                            "AttributeName": "TicketSales",
-                            "KeyType": "HASH"
-                            }
-                        ],
-                        "Projection": {
-                            "ProjectionType": "KEYS_ONLY"
-                        },
-                        "ProvisionedThroughput": {
-                            "ReadCapacityUnits": 5,
-                            "WriteCapacityUnits": 5
-                        }
-                    }
-                ],
                 "ProvisionedThroughput": {
                     "ReadCapacityUnits": 5,
                     "WriteCapacityUnits": 5
@@ -70,13 +39,12 @@
             "Properties": {
                 "MaxCapacity": 15,
                 "MinCapacity": 5,
-                "ResourceId": { "Fn::Join": [
-                    "/",
+                "ResourceId": { "Fn::Join": 
                     [
-                    "table",
-                    { "Ref": "DDBTable" }
+                        "/",
+                        ["table", { "Ref": "DDBTable" }]
                     ]
-                ] },
+                },
                 "RoleARN": {
                     "Fn::GetAtt": ["ScalingRole", "Arn"]
                 },
@@ -93,12 +61,12 @@
                 {
                     "Effect": "Allow",
                     "Principal": {
-                    "Service": [
-                        "application-autoscaling.amazonaws.com"
-                    ]
+                        "Service": [
+                            "application-autoscaling.amazonaws.com"
+                        ]
                     },
                     "Action": [
-                    "sts:AssumeRole"
+                        "sts:AssumeRole"
                     ]
                 }
                 ]
@@ -112,13 +80,13 @@
                         "Statement": [{
                             "Effect": "Allow",
                             "Action": [
-                            "dynamodb:DescribeTable",
-                            "dynamodb:UpdateTable",
-                            "cloudwatch:PutMetricAlarm",
-                            "cloudwatch:DescribeAlarms",
-                            "cloudwatch:GetMetricStatistics",
-                            "cloudwatch:SetAlarmState",
-                            "cloudwatch:DeleteAlarms"
+                                "dynamodb:DescribeTable",
+                                "dynamodb:UpdateTable",
+                                "cloudwatch:PutMetricAlarm",
+                                "cloudwatch:DescribeAlarms",
+                                "cloudwatch:GetMetricStatistics",
+                                "cloudwatch:SetAlarmState",
+                                "cloudwatch:DeleteAlarms"
                             ],
                             "Resource": "*"
                         }]
@@ -142,6 +110,21 @@
                     "PredefinedMetricSpecification": {
                         "PredefinedMetricType": "DynamoDBWriteCapacityUtilization"
                     }
+                }
+            }
+        }
+    },
+    "Outputs": {
+        "DDBTableARN": {
+            "Value": {
+                "Fn::GetAtt": [
+                    "DDBTable",
+                    "Arn"
+                ]
+            },
+            "Export": {
+                "Name": {
+                    "Fn::Sub": "${AWS::StackName}-table-arn"
                 }
             }
         }
