@@ -1,0 +1,65 @@
+{
+    "service": "notes-app-mono-database",
+    "custom": {
+        "stage": "${opt:stage, self:provider.stage}",
+        "tableName": "${self:custom.stage}-mono-notes",
+        "tableThroughputs": {
+            "prod": 5,
+            "default": 1
+        },
+        "tableThroughput": "${self:custom.tableThroughputs.${self:custom.stage}, self:custom.tableThroughputs.default}"
+    },
+    "provider": {
+        "name": "aws",
+        "runtime": "nodejs8.10",
+        "stage": "dev",
+        "region": "us-east-1"
+    },
+    "resources": {
+        "Resources": {
+            "NotesTable": {
+                "Type": "AWS::DynamoDB::Table",
+                "Properties": {
+                    "TableName": "${self:custom.tableName}",
+                    "AttributeDefinitions": [
+                        {
+                            "AttributeName": "userId",
+                            "AttributeType": "S"
+                        },
+                        {
+                            "AttributeName": "noteId",
+                            "AttributeType": "S"
+                        }
+                    ],
+                    "KeySchema": [
+                        {
+                            "AttributeName": "userId",
+                            "KeyType": "HASH"
+                        },
+                        {
+                            "AttributeName": "noteId",
+                            "KeyType": "RANGE"
+                        }
+                    ],
+                    "ProvisionedThroughput": {
+                        "ReadCapacityUnits": "${self:custom.tableThroughput}",
+                        "WriteCapacityUnits": "${self:custom.tableThroughput}"
+                    }
+                }
+            }
+        },
+        "Outputs": {
+            "NotesTableArn": {
+                "Value": {
+                    "Fn::GetAtt": [
+                        "NotesTable",
+                        "Arn"
+                    ]
+                },
+                "Export": {
+                    "Name": "${self:custom.stage}-NotesTableArn"
+                }
+            }
+        }
+    }
+}
