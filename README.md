@@ -96,6 +96,7 @@ from [AWS Blog](https://aws.amazon.com/blogs/mobile/aws-mobile-app-backend-with-
     });
     ```
 - There's a lot more from Serverless-Stack.com like Automating Serverless deployments and Code Splitting in Create React App, you should definitely check it out.
+- In the (near) future, I'm going to  use AWS CloudFormation (and perhaps Terraform) to provision the infrastructure instead of the tools that Serverless-Stack.com uses.
 
 ## Author(s)
 
