@@ -99,8 +99,6 @@ from [AWS Blog](https://aws.amazon.com/blogs/mobile/aws-mobile-app-backend-with-
 
 ## Author(s)
 
-- <b>Viet Nguyen</b>:
-    vnguyen@ndi.org &nbsp;&middot;&nbsp;
-    [LinkedIn](https://www.linkedin.com/in/nguyendviet)
+- <b>Viet Nguyen</b>: [LinkedIn](https://www.linkedin.com/in/nguyendviet)
 
 **[⬆ back to top](#documentation)**
