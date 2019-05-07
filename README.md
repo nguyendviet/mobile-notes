@@ -78,7 +78,7 @@ This app is a combination of the back-end code from AWS Blog [AWS Mobile App Bac
     ```
 
 ## Differences 
-from [AWS Blog](https://aws.amazon.com/blogs/mobile/aws-mobile-app-backend-with-hybrid-apps/) and Serverless-Stack.com
+The differences between my code and the code from [AWS Blog](https://aws.amazon.com/blogs/mobile/aws-mobile-app-backend-with-hybrid-apps/) and Serverless-Stack.com:
 
 - The front-end code ([Ionic framework](https://ionicframework.com/)) from Amazon Blog is outdated. Since 2016 when the blog was written, Ionic has changed the folder structure amongst other things so I wasn't able to make the code from Amazon work with the current Ionic framework.
 - At the time of this documentation (April 2019), Ionic has released a beta version for React. However, it seems more complicated than it should be and I'm more familiar with React than Angular (which is originally supported by Inonic) so I decided to use the front-end code from Serverless-Stack.com. If you want to develop your own mobile app, consider using [React Native](https://facebook.github.io/react-native/).
