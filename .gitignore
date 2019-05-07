@@ -64,3 +64,4 @@ typings/
 www/
 config.js
 aws-variables.js
+/client/build

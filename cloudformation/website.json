@@ -6,7 +6,7 @@
             "Type": "AWS::S3::Bucket",
             "Properties": {
                 "BucketName": {
-                    "Fn::Sub": "${AWS::StackName}-s3-website"
+                    "Fn::Sub": "${AWS::StackName}-s3"
                 },
                 "AccessControl": "PublicRead",
                 "WebsiteConfiguration": {
@@ -84,7 +84,7 @@
             },
             "Export": {
                 "Name": {
-                    "Fn::Sub": "${AWS::StackName}-s3-website-arn"
+                    "Fn::Sub": "${AWS::StackName}-s3-arn"
                 }
             }
         }
