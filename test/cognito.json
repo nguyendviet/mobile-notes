@@ -2,9 +2,12 @@
     "AWSTemplateFormatVersion": "2010-09-09",
     "Description": "Template creates AWS Cognito UserPool.",
     "Resources": {
-        "CognitoUserPool": {
+        "UserPool": {
             "Type": "AWS::Cognito::UserPool",
             "Properties": {
+                "UserPoolName" : {
+                    "Fn::Sub": "${AWS::StackName}-cognito-userpool"
+                },
                 "Policies": {
                     "PasswordPolicy": {
                         "MinimumLength": 8,
@@ -15,7 +18,24 @@
                     }
                 },
                 "Schema": [
-                   
+                    {
+                        "Name": "name",
+                        "AttributeDataType": "String",
+                        "Mutable": true,
+                        "Required": true
+                    },
+                    {
+                        "Name": "email",
+                        "AttributeDataType": "String",
+                        "Mutable": false,
+                        "Required": true
+                    },
+                    {
+                        "Name": "phone_number",
+                        "AttributeDataType": "String",
+                        "Mutable": false,
+                        "Required": true
+                    }
                 ],
                 "LambdaConfig": {},
                 "AutoVerifiedAttributes": [
@@ -43,11 +63,28 @@
             }
         }          
     },
+    "UserPoolClient": {
+        "Type": "AWS::Cognito::UserPoolClient",
+        "Description": "App Client.",
+        "Properties": {
+            "ClientName": {
+                "Fn::Sub": "${AWS::StackName}-cognito-userpool-client"
+            },
+            "ExplicitAuthFlows": [
+                "ADMIN_NO_SRP_AUTH"
+            ],
+            "GenerateSecret": false,
+            "RefreshTokenValidity": 30,
+            "UserPoolId": {
+                "Ref": "UserPool"
+            }
+        }
+    },
     "Outputs": {
-        "CognitoUserPoolARN": {
+        "UserPoolARN": {
             "Value": {
                 "Fn::GetAtt": [
-                    "CognitoUserPool",
+                    "UserPool",
                     "Arn"
                 ]
             },

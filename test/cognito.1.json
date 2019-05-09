@@ -1,0 +1,411 @@
+{
+    "Description": "AWS AppSync Notes API. Source: https://gist.github.com/adrianhall/f330a10451f05a529680f32978dddb64",
+    "Parameters": {
+        "APIName": {
+            "Type": "String",
+            "Description": "Name of the API - used to generate unique names for resources",
+            "MinLength": 3,
+            "MaxLength": 20,
+            "AllowedPattern": "^[a-zA-Z][a-zA-Z0-9_]*$"
+        }
+    },
+    "Resources": {
+        "SNSRole": {
+            "Type": "AWS::IAM::Role",
+            "Description": "An IAM Role to allow Cognito to send SNS messages",
+            "Properties": {
+                "RoleName": {
+                    "Fn::Sub": "${APIName}-cognito-sns-role"
+                },
+                "ManagedPolicyArns": [
+                    {
+                        "Ref": "CognitoSNSPolicy"
+                    }
+                ],
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "sts:AssumeRole"
+                            ],
+                            "Principal": {
+                                "Service": [
+                                    "cognito-idp.amazonaws.com"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            },
+            "DependsOn": [
+                "CognitoSNSPolicy"
+            ]
+        },
+        "CognitoSNSPolicy": {
+            "Type": "AWS::IAM::ManagedPolicy",
+            "Properties": {
+                "Description": "Managed policy to allow Amazon Cognito to access SNS",
+                "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": "sns:publish",
+                            "Resource": "*"
+                        }
+                    ]
+                }
+            }
+        },
+        "DynamoDBRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "RoleName": {
+                    "Fn::Sub": "${APIName}-appsync-dynamodb-role"
+                },
+                "ManagedPolicyArns": [
+                    {
+                        "Ref": "AppSyncDynamoDBPolicy"
+                    }
+                ],
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "sts:AssumeRole"
+                            ],
+                            "Principal": {
+                                "Service": [
+                                    "appsync.amazonaws.com"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            },
+            "DependsOn": [
+                "AppSyncDynamoDBPolicy"
+            ]
+        },
+        "AppSyncDynamoDBPolicy": {
+            "Type": "AWS::IAM::ManagedPolicy",
+            "Properties": {
+                "Description": "Managed policy to allow AWS AppSync to access the tables created by this template.",
+                "Path": "/appsync/",
+                "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "dynamodb:GetItem",
+                                "dynamodb:PutItem",
+                                "dynamodb:DeleteItem",
+                                "dynamodb:UpdateItem",
+                                "dynamodb:Query",
+                                "dynamodb:Scan",
+                                "dynamodb:BatchGetItem",
+                                "dynamodb:BatchWriteItem"
+                            ],
+                            "Resource": {
+                                "Fn::Join": [
+                                    "",
+                                    [
+                                        {
+                                            "Fn::GetAtt": [
+                                                "DynamoDBNotesTable",
+                                                "Arn"
+                                            ]
+                                        },
+                                        "*"
+                                    ]
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        "UserPool": {
+            "Type": "AWS::Cognito::UserPool",
+            "Description": "A Cognito user pool for authenticating users",
+            "Properties": {
+                "UserPoolName": {
+                    "Fn::Sub": "${APIName}-user-pool"
+                },
+                "AutoVerifiedAttributes": [
+                    "phone_number"
+                ],
+                "MfaConfiguration": "ON",
+                "SmsConfiguration": {
+                    "ExternalId": {
+                        "Fn::Sub": "${APIName}-external"
+                    },
+                    "SnsCallerArn": {
+                        "Fn::GetAtt": [
+                            "SNSRole",
+                            "Arn"
+                        ]
+                    }
+                },
+                "Schema": [
+                    {
+                        "Name": "name",
+                        "AttributeDataType": "String",
+                        "Mutable": true,
+                        "Required": true
+                    },
+                    {
+                        "Name": "email",
+                        "AttributeDataType": "String",
+                        "Mutable": false,
+                        "Required": true
+                    },
+                    {
+                        "Name": "phone_number",
+                        "AttributeDataType": "String",
+                        "Mutable": false,
+                        "Required": true
+                    }
+                ]
+            }
+        },
+        "UserPoolClient": {
+            "Type": "AWS::Cognito::UserPoolClient",
+            "Description": "App Client used by AWS AppSync",
+            "Properties": {
+                "ClientName": {
+                    "Fn::Sub": "${APIName}-appsync-client"
+                },
+                "GenerateSecret": false,
+                "UserPoolId": {
+                    "Ref": "UserPool"
+                }
+            }
+        },
+        "DynamoDBNotesTable": {
+            "Type": "AWS::DynamoDB::Table",
+            "Description": "Data store for AWS AppSync Notes Type",
+            "Properties": {
+                "TableName": {
+                    "Fn::Sub": "${APIName}-notes-table"
+                },
+                "AttributeDefinitions": [
+                    {
+                        "AttributeName": "NoteId",
+                        "AttributeType": "S"
+                    },
+                    {
+                        "AttributeName": "UserId",
+                        "AttributeType": "S"
+                    }
+                ],
+                "KeySchema": [
+                    {
+                        "AttributeName": "NoteId",
+                        "KeyType": "HASH"
+                    },
+                    {
+                        "AttributeName": "UserId",
+                        "KeyType": "RANGE"
+                    }
+                ],
+                "ProvisionedThroughput": {
+                    "ReadCapacityUnits": 5,
+                    "WriteCapacityUnits": 5
+                }
+            }
+        },
+        "AppSyncApi": {
+            "Type": "AWS::AppSync::GraphQLApi",
+            "Description": "The GraphQL API for the Notes App",
+            "Properties": {
+                "AuthenticationType": "AMAZON_COGNITO_USER_POOLS",
+                "Name": {
+                    "Fn::Sub": "${APIName}"
+                },
+                "UserPoolConfig": {
+                    "UserPoolId": {
+                        "Ref": "UserPoolClient"
+                    },
+                    "AwsRegion": {
+                        "Fn::Sub": "${AWS::Region}"
+                    },
+                    "DefaultAction": "ALLOW"
+                }
+            }
+        },
+        "AppSyncSchema": {
+            "Type": "AWS::AppSync::GraphQLSchema",
+            "Properties": {
+                "ApiId": {
+                    "Fn::GetAtt": [
+                        "AppSyncApi",
+                        "ApiId"
+                    ]
+                },
+                "Definition": "type Note {\n  NoteId: ID!\n  title: String\n  content: String\n}\ntype PaginatedNotes {\n  notes: [Note!]!\n  nextToken: String\n}\ntype Query {\n  allNotes(limit: Int, nextToken: String): PaginatedNotes!\n  getNote(NoteId: ID!): Note\n}\ntype Mutation {\n  saveNote(NoteId: ID!, title: String!, content: String!): Note\n  deleteNote(NoteId: ID!): Note\n}\ntype Schema {\n  query: Query\n  mutation: Mutation\n}\n"
+            }
+        },
+        "AppSyncNotesTableDataSource": {
+            "Type": "AWS::AppSync::DataSource",
+            "Properties": {
+                "ApiId": {
+                    "Fn::GetAtt": [
+                        "AppSyncApi",
+                        "ApiId"
+                    ]
+                },
+                "Name": {
+                    "Fn::Sub": "${APIName}_notes_table"
+                },
+                "Description": "The Notes Table AppSync Data Source",
+                "Type": "AMAZON_DYNAMODB",
+                "ServiceRoleArn": {
+                    "Fn::GetAtt": [
+                        "DynamoDBRole",
+                        "Arn"
+                    ]
+                },
+                "DynamoDBConfig": {
+                    "TableName": {
+                        "Ref": "DynamoDBNotesTable"
+                    },
+                    "AwsRegion": {
+                        "Fn::Sub": "${AWS::Region}"
+                    }
+                }
+            }
+        },
+        "AppSyncAllNotesQueryResolver": {
+            "Type": "AWS::AppSync::Resolver",
+            "DependsOn": "AppSyncSchema",
+            "Properties": {
+                "ApiId": {
+                    "Fn::GetAtt": [
+                        "AppSyncApi",
+                        "ApiId"
+                    ]
+                },
+                "TypeName": "Query",
+                "FieldName": "allNotes",
+                "DataSourceName": {
+                    "Fn::GetAtt": [
+                        "AppSyncNotesTableDataSource",
+                        "Name"
+                    ]
+                },
+                "RequestMappingTemplate": "{\n  \"version\": \"2017-02-28\",\n  \"operation\": \"Query\",\n  \"query\": {\n    \"expression\": \"UserId = :id\",\n    \"expressionValues\": {\n      \":id\": $util.dynamodb.toDynamoDBJson($ctx.identity.sub)\n    }\n  }\n},\n\"limit\": $util.defaultIfNull(${ctx.args.limit}, 20),\n\"nextToken\": $util.toJson(${ctx.args.nextToken})\n",
+                "ResponseMappingTemplate": "{\n  \"notes\": $util.toJson($ctx.result.items),\n  \"nextToken\": $util.toJson(${ctx.args.nextToken})\n}\n"
+            }
+        },
+        "AppSyncGetNoteQueryResolver": {
+            "Type": "AWS::AppSync::Resolver",
+            "DependsOn": "AppSyncSchema",
+            "Properties": {
+                "ApiId": {
+                    "Fn::GetAtt": [
+                        "AppSyncApi",
+                        "ApiId"
+                    ]
+                },
+                "TypeName": "Query",
+                "FieldName": "getNote",
+                "DataSourceName": {
+                    "Fn::GetAtt": [
+                        "AppSyncNotesTableDataSource",
+                        "Name"
+                    ]
+                },
+                "RequestMappingTemplate": "{\n  \"version\": \"2012-02-28\",\n  \"operation\": \"GetItem\",\n  \"key\": {\n    \"NoteId\": $util.dynamodb.toDynamoDBJson($ctx.args.NoteId),\n    \"UserId\": $util.dynamodb.toDynamoDBJson($ctx.identity.sub)\n  }\n}\n",
+                "ResponseMappingTemplate": "$util.toJson($ctx.result)"
+            }
+        },
+        "AppSyncSaveNoteMutationResolver": {
+            "Type": "AWS::AppSync::Resolver",
+            "DependsOn": "AppSyncSchema",
+            "Properties": {
+                "ApiId": {
+                    "Fn::GetAtt": [
+                        "AppSyncApi",
+                        "ApiId"
+                    ]
+                },
+                "TypeName": "Mutation",
+                "FieldName": "saveNote",
+                "DataSourceName": {
+                    "Fn::GetAtt": [
+                        "AppSyncNotesTableDataSource",
+                        "Name"
+                    ]
+                },
+                "RequestMappingTemplate": "{\n  \"version\": \"2012-02-28\",\n  \"operation\": \"PutItem\",\n  \"key\": {\n    \"NoteId\": $util.dynamodb.toDynamoDBJson($ctx.args.NoteId),\n    \"UserId\": $util.dynamodb.toDynamoDBJson($ctx.identity.sub)\n  },\n  \"attributeValues\": {\n    \"title\": $util.dynamodb.toDynamoDBJson($ctx.args.title),\n    \"content\": $util.dynamodb.toDynamoDBJson($ctx.args.content)\n  }\n}\n",
+                "ResponseMappingTemplate": "$util.toJson($ctx.result)"
+            }
+        },
+        "AppSyncDeleteNoteMutationResolver": {
+            "Type": "AWS::AppSync::Resolver",
+            "DependsOn": "AppSyncSchema",
+            "Properties": {
+                "ApiId": {
+                    "Fn::GetAtt": [
+                        "AppSyncApi",
+                        "ApiId"
+                    ]
+                },
+                "TypeName": "Mutation",
+                "FieldName": "deleteNote",
+                "DataSourceName": {
+                    "Fn::GetAtt": [
+                        "AppSyncNotesTableDataSource",
+                        "Name"
+                    ]
+                },
+                "RequestMappingTemplate": "{\n  \"version\": \"2012-02-28\",\n  \"operation\": \"DeleteItem\",\n  \"key\": {\n    \"NoteId\": $util.dynamodb.toDynamoDBJson($ctx.args.NoteId),\n    \"UserId\": $util.dynamodb.toDynamoDBJson($ctx.identity.sub)\n  }\n}\n",
+                "ResponseMappingTemplate": "$util.toJson($ctx.result)"
+            }
+        }
+    },
+    "Outputs": {
+        "CognitoUserPoolId": {
+            "Description": "The Pool ID of the Cognito User Pool",
+            "Value": {
+                "Ref": "UserPool"
+            }
+        },
+        "CognitoUserPoolClientId": {
+            "Description": "The Client ID for AWS AppSync Auth",
+            "Value": {
+                "Ref": "UserPoolClient"
+            }
+        },
+        "DynamoDBNotesTableName": {
+            "Description": "The name of the DynamoDB Table",
+            "Value": {
+                "Ref": "DynamoDBNotesTable"
+            }
+        },
+        "GraphQLApiEndpoint": {
+            "Description": "The URL to the GraphQL Endpoint",
+            "Value": {
+                "Fn::GetAtt": [
+                    "AppSyncApi",
+                    "GraphQLUrl"
+                ]
+            }
+        },
+        "GraphQLApiId": {
+            "Description": "The API ID of the GraphQL API",
+            "Value": {
+                "Fn::GetAtt": [
+                    "AppSyncApi",
+                    "ApiId"
+                ]
+            }
+        }
+    }
+}
