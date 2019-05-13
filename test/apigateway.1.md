@@ -1,0 +1,2 @@
+- Created stack successfully.
+- Unable to test GET.
