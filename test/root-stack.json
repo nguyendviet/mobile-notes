@@ -1,0 +1,26 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "The root stack that contains all stacks needed for the app.",
+    
+    "Parameters": {
+        "Description": "Stack contains the DynamoDB.",
+        "Type": "String",
+        "MinLength" : 1,
+        "MaxLength" : 255,
+        "AllowedPattern" : "^[a-zA-Z][-a-zA-Z0-9]*$",
+        "Default": "dynamodb"
+    },
+    
+    "Resources": {
+        "Database": {
+            "Type": "AWS::DynamoDB::Table",
+            "Properties": {
+                
+            }
+        }
+    },
+
+    "Outputs": {
+
+    }
+}

@@ -1,2 +1,2 @@
 - Created stack successfully.
-- Unable to test GET.
+- Test GET and POST successfully.

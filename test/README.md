@@ -1,0 +1,1 @@
+- Testing `SampleNetworkCrossStack` and `SampleWebAppCrossStack`. Trying to create a root stack that gets properties from child stacks.
