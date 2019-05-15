@@ -230,7 +230,7 @@
                 },
                 "UserPoolConfig": {
                     "UserPoolId": {
-                        "Ref": "UserPoolClient"
+                        "Ref": "UserPool"
                     },
                     "AwsRegion": {
                         "Fn::Sub": "${AWS::Region}"
