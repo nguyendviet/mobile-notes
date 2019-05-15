@@ -1,23 +1,17 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "The root stack that contains all stacks needed for the app.",
-    
-    "Parameters": {
-        "DatabaseStack": {
-            "Description": "Stack contains the DynamoDB.",
-            "Type": "String",
-            "MinLength" : 1,
-            "MaxLength" : 255,
-            "AllowedPattern" : "^[a-zA-Z][-a-zA-Z0-9]*$",
-            "Default": "dynamodb"
-        }
-    },
+    "Description": "Use TemplateURL. Templates are stored in S3. The root stack that contains all stacks needed for the app.",
     
     "Resources": {
         "Database": {
-            "Type": "AWS::DynamoDB::Table",
+            "Type": "AWS::CloudFormation::Stack",
             "Properties": {
-                
+                "Parameters": {
+                    "TableName": {
+                        "Fn::Sub": "${AWS::StackName}-dynamodb-table"
+                    }
+                },
+                "TemplateURL": "https://s3.amazonaws.com/test-template-bucket-wed15may2019/DatabaseStack.json"
             }
         }
     },

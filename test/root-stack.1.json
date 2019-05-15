@@ -1,0 +1,17 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "Use ImportValue. The templates are in the same folder. The root stack that contains all stacks needed for the app.",
+    
+    "Resources": {
+        "Database": {
+            "Type": "AWS::CloudFormation::Stack",
+            "Properties": {
+               
+            }
+        }
+    },
+
+    "Outputs": {
+
+    }
+}
