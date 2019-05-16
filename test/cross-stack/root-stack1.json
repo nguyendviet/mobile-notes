@@ -1,0 +1,37 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "Use ImportValue. The templates are in the same folder. The root stack that contains all stacks needed for the app.",
+
+    "Parameters": {
+        "DatabaseStack": {
+            "Description": "The database stack that creates DynamoDB table.",
+            "Type": "String",
+            "MinLength" : 1,
+            "MaxLength" : 255,
+            "AllowedPattern" : "^[a-zA-Z][-a-zA-Z0-9]*$",
+            "Default" : "dynamodb1"
+        }
+    },
+    
+    "Resources": {
+        "Database": {
+            "Type": "AWS::DynamoDB::Table",
+            "Properties": {
+                "Fn::ImportValue" :  {"Fn::Sub": "${DatabaseStack}-DynamoDBProperties" }
+            }
+        }
+    },
+
+    "Outputs": {
+        "DatabaseName" : {
+            "Value" : {
+                "Fn::Sub": "${AWS::StackName}-table"
+            },
+            "Export": {
+                "Name": {
+                    "Fn::Sub": "${AWS::StackName}-table"
+                }
+            }
+        }
+    }
+}

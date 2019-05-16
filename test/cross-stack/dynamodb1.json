@@ -1,13 +1,11 @@
 {
     "AWSTemplateFormatVersion" : "2010-09-09",
     "Description" : "This template: - Sets up Application Auto Scaling for a AWS::DynamoDB::Table resource. The template defines a TargetTrackingScaling scaling policy that scales up the WriteCapacityUnits throughput for the table. - Exports the table ARN.",
+
     "Resources": {
         "DDBTable": {
             "Type": "AWS::DynamoDB::Table",
             "Properties": {
-                "TableName": {
-                    "Fn::Sub": "${AWS::StackName}-table"
-                },
                 "AttributeDefinitions": [
                     {
                         "AttributeName": "userid",
@@ -115,11 +113,11 @@
         }
     },
     "Outputs": {
-        "DDBTableARN": {
+        "DynamoDBProperties": {
             "Value": {
                 "Fn::GetAtt": [
                     "DDBTable",
-                    "Arn"
+                    "Properties"
                 ]
             },
             "Export": {

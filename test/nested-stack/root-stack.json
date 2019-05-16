@@ -3,15 +3,15 @@
     "Description": "Use TemplateURL. Templates are stored in S3. The root stack that contains all stacks needed for the app.",
     
     "Resources": {
-        "Database": {
+        "S3WebsiteReactStack": {
             "Type": "AWS::CloudFormation::Stack",
             "Properties": {
                 "Parameters": {
-                    "TableName": {
-                        "Fn::Sub": "${AWS::StackName}-dynamodb-table"
+                    "BucketName": {
+                        "Fn::Sub": "${AWS::StackName}-s3-bucket"
                     }
                 },
-                "TemplateURL": "https://s3.amazonaws.com/test-template-bucket-wed15may2019/DatabaseStack.json"
+                "TemplateURL": "https://s3.amazonaws.com/ndi-tech-cloudformation-templates/s3-static-website-react.json"
             }
         }
     },
