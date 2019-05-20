@@ -20,16 +20,16 @@
                 "CorsConfiguration": {
                     "CorsRules" : [
                         {
-                            "AllowedHeader": "*",
-                            "AllowedMethod": [
+                            "AllowedHeaders": ["*"],
+                            "AllowedMethods": [
                                 "GET", 
                                 "PUT",
                                 "POST",
                                 "HEAD",
                                 "DELETE"
                             ],
-                            "AllowedOrigin": "*",
-                            "MaxAgeSeconds": 3000
+                            "AllowedOrigins": ["*"],
+                            "MaxAge": 3000
                         }              
                     ]
                 }

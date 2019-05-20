@@ -14,6 +14,17 @@
                 "TemplateURL": "https://s3.amazonaws.com/ndi-tech-cloudformation-templates/s3-static-website-react.json"
             }
         },
+        "S3UploadBucket": {
+            "Type": "AWS::CloudFormation::Stack",
+            "Properties": {
+                "Parameters": {
+                    "BucketName": {
+                        "Fn::Sub": "${AWS::StackName}-upload"
+                    }
+                },
+                "TemplateURL": "https://s3.amazonaws.com/ndi-tech-cloudformation-templates/s3-with-cors.json"
+            }
+        },
         "DynamoDBTableStack": {
             "Type": "AWS::CloudFormation::Stack",
             "Properties": {
