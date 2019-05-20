@@ -1,0 +1,51 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "This template creates a bucket with enabled CORS configuration.",
+    "Parameters" : {
+        "BucketName" : {
+            "Description": "Name of the S3 bucket as a parameter passed into this template.",
+            "Type": "String",
+            "MinLength" : 1,
+            "MaxLength" : 255,
+            "AllowedPattern" : "^[a-zA-Z][-a-zA-Z0-9]*$"
+        }
+    },
+    "Resources": {
+        "S3Bucket": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+                "BucketName": {
+                    "Ref": "BucketName"
+                }
+            }
+        }
+    },
+    "Outputs": {
+        "BucketARN": {
+            "Value": {
+                "Fn::GetAtt": [
+                    "S3Bucket",
+                    "Arn"
+                ]
+            },
+            "Description": "ARN of the bucket."
+        },
+        "S3BucketSecureURL": {
+            "Value": {
+                "Fn::Join": [
+                    "",
+                    [
+                        "https://",
+                        {
+                            "Fn::GetAtt": [
+                                "S3Bucket",
+                                "DomainName"
+                            ]
+                        }
+                    ]
+                ]
+            },
+            "Description": "The IPv4 DNS name of the bucket."
+        }
+    }
+}

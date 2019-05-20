@@ -1,6 +1,6 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "Use TemplateURL. Templates are stored in S3. The root stack that contains all stacks needed for the app.",
+    "Description": "This template uses nested stacks to provision the notes app.",
     
     "Resources": {
         "S3WebsiteReactStack": {
@@ -8,10 +8,21 @@
             "Properties": {
                 "Parameters": {
                     "BucketName": {
-                        "Fn::Sub": "${AWS::StackName}-s3-bucket"
+                        "Fn::Sub": "${AWS::StackName}-website"
                     }
                 },
                 "TemplateURL": "https://s3.amazonaws.com/ndi-tech-cloudformation-templates/s3-static-website-react.json"
+            }
+        },
+        "DynamoDBTableStack": {
+            "Type": "AWS::CloudFormation::Stack",
+            "Properties": {
+                "Parameters": {
+                    "TableName": {
+                        "Fn::Sub": "${AWS::StackName}-table"
+                    }
+                },
+                "TemplateURL": "https://s3.amazonaws.com/ndi-tech-cloudformation-templates/dynamodb-table.json"
             }
         }
     },
