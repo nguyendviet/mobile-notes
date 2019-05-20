@@ -16,6 +16,22 @@
             "Properties": {
                 "BucketName": {
                     "Ref": "BucketName"
+                },
+                "CorsConfiguration": {
+                    "CorsRules" : [
+                        {
+                            "AllowedHeader": "*",
+                            "AllowedMethod": [
+                                "GET", 
+                                "PUT",
+                                "POST",
+                                "HEAD",
+                                "DELETE"
+                            ],
+                            "AllowedOrigin": "*",
+                            "MaxAgeSeconds": 3000
+                        }              
+                    ]
                 }
             }
         }
