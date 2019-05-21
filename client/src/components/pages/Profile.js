@@ -74,7 +74,18 @@ export default class Profile extends Component {
                 {
                     this.state.notes.length > 0
                     ? this.renderNotesList(this.state.notes)
-                    : null
+                    : (
+                        <LinkContainer
+                            key="new"
+                            to="/notes/new"
+                        >
+                            <ListGroupItem>
+                            <h4>
+                                <b>{"\uFF0B"}</b> Create a new note
+                            </h4>
+                            </ListGroupItem>
+                        </LinkContainer>
+                    )
                 }
             </div>
         )
