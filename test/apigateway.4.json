@@ -1,0 +1,336 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+ 
+    "Description": "DO NOT CREATE THIS STACK. This is a bad example, will cause API: s3:DeleteBucketPolicy Access Denied => cannot roll back or delete stack. Build an API with AWS Lambda and API Gateway. Source: https://itnext.io/how-to-build-an-api-with-aws-lambda-and-api-gateway-using-cloudformation-bd5f9249ac2f",
+
+    "Resources": {
+        "IAMLambdaServiceRole":
+        {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+            "RoleName": "LambdaServiceRole",
+                 "AssumeRolePolicyDocument": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+              {
+                "Sid": "",
+                "Effect": "Allow",
+                "Principal": {
+                  "Service": "lambda.amazonaws.com"
+                  },
+                "Action": "sts:AssumeRole"
+              }
+                  ]
+                },
+                "ManagedPolicyArns": ["arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"],
+                "Policies": [{
+                    "PolicyName": "LambdaServiceRolePolicy",
+                    "PolicyDocument": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                  {
+                  "Action": ["s3:Get*","s3:List*"],
+                  "Resource": "*",
+                  "Effect": "Allow"
+                }
+                        ]
+                    }
+                }]
+            }
+        },
+    "IAMAPIServiceRole":
+    {
+        "Type": "AWS::IAM::Role",
+        "Properties": {
+        "RoleName": "LambdaAPIServiceRole",
+             "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Sid": "",
+                  "Effect": "Allow",
+                  "Principal": {
+                    "Service": "apigateway.amazonaws.com"
+                  },
+                  "Action": "sts:AssumeRole"
+                }
+              ]
+            },
+            "ManagedPolicyArns": ["arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"],
+            "Policies": [{
+                "PolicyName": "API_Service_Role_Policy",
+                "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                            {
+                            "Action": "lambda:InvokeFunction",
+                            "Resource": {"Fn::GetAtt": ["APIFunction", "Arn"]},
+                            "Effect": "Allow"
+                        }
+                    ]
+                }
+            }]
+        }
+    },
+    "APIFunction": {
+        "Type": "AWS::Lambda::Function",
+        "Properties": {
+            "FunctionName": "GetVehicle",
+            "Description": "Function to Get Vehicle Image from S3 Bucket",
+            "Code": {
+                "S3Bucket": {
+                    "Fn::Sub": "${AWS::StackName}-bucket"
+                },
+                "S3Key": "Get_Car.zip"
+            },
+            "Handler": "Get_Car.get_car",
+            "Runtime": "python3.6",
+            "MemorySize": 1024,
+            "Role": {"Fn::GetAtt": ["IAMLambdaServiceRole", "Arn"]},
+        "Timeout" : 60
+        }
+    },
+    "RestAPI": {
+    "Type" : "AWS::ApiGateway::RestApi",
+    "Properties" : {
+        "Description" : "API to get Car Image",
+        "Name" : "Get_Car API",
+        "EndpointConfiguration": {"Types" : ["REGIONAL"]},
+        "Body" : {
+    "swagger": "2.0",
+    "info": {
+    "description": "API to return Car Image",
+    "version": "1.0.0",
+    "title": "Get_Car API"
+    },
+    "schemes": [
+    "https"
+    ],
+    "paths": {
+    "/": {},
+    "/get_car": {
+    "post": {
+    "produces": [
+    "application/json",
+    "application/customer-error",
+    "application/api_not_found",
+    "application/no_record",
+    "application/api_error"
+    ],
+    "responses": {
+    "200": {
+    "description": "200 response",
+    "schema": {
+    "$ref": "#/definitions/Empty"
+    }
+    },
+    "201": {
+    "description": "201 response"
+    },
+    "204": {
+    "description": "204 response"
+    },
+    "230": {
+    "description": "230 response"
+    },
+    "231": {
+    "description": "231 response"
+    },
+    "232": {
+    "description": "232 response"
+    },
+    "233": {
+    "description": "233 response"
+    }
+    },
+    "security": [
+    {
+    "sigv4": []
+    }
+    ],
+    "x-amazon-apigateway-integration": {
+    "responses": {
+    "default": {
+    "statusCode": "200"
+    }
+    },
+    "uri": {"Fn::Join": [ ":", ["arn:aws:apigateway", {"Ref": "AWS::Region"}, "lambda:path/2015-03-31/functions/arn:aws:lambda", {"Ref": "AWS::Region"}, {"Ref": "AWS::AccountId"}, "function", {"Fn::Join": ["",[{"Ref": "APIFunction"}, "/invocations"]]}]]},
+    "passthroughBehavior": "when_no_match",
+    "httpMethod": "POST",
+    "contentHandling": "CONVERT_TO_TEXT",
+    "credentials": {"Fn::GetAtt": ["IAMAPIServiceRole", "Arn"]},
+    "type": "aws"
+    }
+    }
+    }
+    },
+    "securityDefinitions": {
+    "sigv4": {
+    "type": "apiKey",
+    "name": "Authorization",
+    "in": "header",
+    "x-amazon-apigateway-authtype": "awsSigv4"
+    }
+    },
+    "definitions": {
+    "Empty": {
+    "type": "object",
+    "title": "Empty Schema"
+    }
+    }
+    }
+    }
+    },
+    "RestAPICaller": {
+        "Type": "AWS::IAM::User",
+        "Properties": {
+            "UserName": "Get_Car_Caller"
+        }
+    },
+    "RestAPICallerManagedPolicy": {
+            "Type": "AWS::IAM::ManagedPolicy",
+            "DependsOn": ["RestAPI","APIFunction","RestAPICaller"],
+            "Properties": {
+                "Description": "Get_Car API Caller",
+                "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Sid": "RestAPICaller001",
+                            "Effect": "Allow",
+                            "Action": "execute-api:Invoke",
+                            "Resource": {"Fn::Join": ["", ["arn:aws:execute-api:", {"Ref": "AWS::Region"}, ":", {"Ref": "AWS::AccountId"}, ":", { "Ref": "RestAPI" }, "/*/POST/*"]]}
+                        },
+                        {
+                            "Sid": "RestAPICaller002",
+                            "Effect": "Allow",
+                            "Action": "lambda:InvokeFunction",
+                            "Resource": {"Fn::Join": ["", ["arn:aws:lambda:", {"Ref": "AWS::Region"}, ":", {"Ref": "AWS::AccountId"}, ":function:", {"Ref": "APIFunction"}]]}
+                        },
+                        {
+                            "Sid": "RestAPICaller003",
+                            "Effect": "Allow",
+                            "Action": "s3:GetObject",
+                            "Resource":  "arn:aws:s3:::car-images-hd/*"
+                        }
+                    ]
+                },
+                "Users": ["Get_Car_Caller"],
+                "ManagedPolicyName": "API_Caller_Policy"
+            }
+    },
+    
+    "LambdaPermissions":{
+        "Type": "AWS::Lambda::Permission",
+        "DependsOn": ["APIFunction"],
+        "Properties": {
+            "Action": "lambda:Invoke",
+            "FunctionName": {"Ref": "APIFunction"},
+            "Principal": "apigateway.amazonaws.com",
+            "SourceArn": {"Fn::Join": ["", ["arn:aws:execute-api:", {"Ref": "AWS::Region"}, ":", {"Ref": "AWS::AccountId"}, ":", {"Ref": "RestAPI"}, "/*/POST/get_car"]]}
+        }
+    },
+        "GetCarLogGroup": {
+        "Type": "AWS::Logs::LogGroup",
+            "DependsOn": "APIFunction",
+        "Properties": {
+            "LogGroupName": {"Fn::Join": ["", ["/aws/lambda/", {"Ref":"APIFunction"}]]}
+            }
+    },
+      "ApiGatewayCloudWatchLogsRole": {
+          "Type": "AWS::IAM::Role",
+          "Properties": {
+            "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [{
+                "Effect": "Allow",
+                "Principal": { "Service": ["apigateway.amazonaws.com"] },
+                "Action": ["sts:AssumeRole"]
+              }]
+            },
+            "Policies": [{
+              "PolicyName": "API_GW_Logs_Policy",
+              "PolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [{
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:DescribeLogGroups",
+                    "logs:DescribeLogStreams",
+                    "logs:PutLogEvents",
+                    "logs:GetLogEvents",
+                    "logs:FilterLogEvents"
+                  ],
+                  "Resource": "*"
+                }]
+              }
+            }]
+          }
+        },
+            "BucketPolicy": {
+          "Type": "AWS::S3::BucketPolicy",
+          "Properties": {
+            "Bucket": "car-images-hd",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "s3:GetObject"
+                  ],
+                  "Resource": "arn:aws:s3:::car-images-hd/*",
+                  "Condition": {},
+                  "Principal": {
+                    "AWS": [
+                      {
+                        "Fn::Join": [
+                          ":",
+                          [
+                            "arn:aws:iam:",
+                            {
+                              "Ref": "AWS::AccountId"
+                            }, "user/Get_Car_Caller"
+                          ]
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        },
+            "ApiGatewayAccount": {
+              "Type": "AWS::ApiGateway::Account",
+              "Properties": {
+                "CloudWatchRoleArn": {"Fn::GetAtt": ["ApiGatewayCloudWatchLogsRole", "Arn"] }
+              }
+            },
+            "RestAPIStage": {
+                       "Type": "AWS::ApiGateway::Stage",
+                                          "DependsOn": ["ApiGatewayAccount"],
+                       "Properties": {
+                         "DeploymentId": {"Ref": "RestAPIDeployment"},
+                         "MethodSettings": [{
+                           "DataTraceEnabled": true,
+                           "HttpMethod": "*",
+                           "LoggingLevel": "INFO",
+                           "ResourcePath": "/*"
+                         }],
+                         "RestApiId": {"Ref": "RestAPI"},
+                         "StageName": "dev"
+                       }
+                     },
+                   "RestAPIDeployment": {
+                     "Type": "AWS::ApiGateway::Deployment",
+                                     "DependsOn": ["RestAPI"],
+                     "Properties": {
+                       "RestApiId": {"Ref": "RestAPI"},
+                       "StageName": "dummy"
+            }
+          }
+      }
+}
