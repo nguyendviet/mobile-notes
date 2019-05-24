@@ -47,8 +47,22 @@
                 "TemplateURL": "https://s3.amazonaws.com/ndi-tech-cloudformation-templates/cognito-userpool.json"
             },
             "DependsOn": "DynamoDBTable"
+        },
+        "ApiGateway": {
+            "Type": "AWS::CloudFormation::Stack",
+            "Properties": {
+                "Parameters": {
+                    "ApiGatewayName": {
+                        "Fn::Sub": "${AWS::StackName}-api"
+                    },
+                    "DynamoDBStack": {
+                        "Fn::GetAtt": [ "DynamoDBTable", "Outputs.DDBStackName" ]
+                    }
+                },
+                "TemplateURL": "https://s3.amazonaws.com/ndi-tech-cloudformation-templates/api-gateway.json"
+            },
+            "DependsOn": "DynamoDBTable"
         }
-        
     },
 
     "Outputs": {

@@ -1,56 +1,119 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "API Gateway, Lambda, and Dynamo.",
+    "Description": "This template: - Creates API Gateway and Lambda function. - Gets table name using cross stack reference. Modified from apigateway.1.json",
+
+    "Parameters" : {
+        "DynamoDBStack" : {
+            "Description": "Name of the DynamoDB table as a parameter passed into this template.",
+            "Type": "String",
+            "Default" : "dynamodb-table"
+        }
+    },
+
     "Resources": {
-        "BaseLambdaExecutionPolicy": {
-            "Type": "AWS::IAM::ManagedPolicy",
+        "LambdaRole": {
+            "Type": "AWS::IAM::Role",
             "Properties": {
-                "Description": "Base permissions needed by all lambda functions.",
-                "PolicyDocument": {
-                    "Version": "2012-10-17",
-                    "Statement": [
-                        {
-                            "Effect": "Allow",
-                            "Action": [
-                                "logs:CreateLogGroup",
-                                "logs:CreateLogStream",
-                                "logs:PutLogEvents",
-                                "ec2:CreateNetworkInterface",
-                                "ec2:DescribeNetworkInterfaces",
-                                "ec2:DeleteNetworkInterface"
-                            ],
-                            "Resource": "*"
+                "Policies": [
+                    {
+                        "PolicyName": {
+                            "Fn::Sub": "${AWS::StackName}-lambda-policy"
+                        },
+                        "PolicyDocument": {
+                            "Version": "2012-10-17",
+                            "Statement": [
+                                {
+                                    "Sid": "",
+                                    "Action": [
+                                        "dynamodb:DeleteItem",
+                                        "dynamodb:GetItem",
+                                        "dynamodb:PutItem",
+                                        "dynamodb:Query",
+                                        "dynamodb:Scan",
+                                        "dynamodb:UpdateItem"
+                                    ],
+                                    "Effect": "Allow",
+                                    "Resource": [
+                                        { "Fn::ImportValue": {"Fn::Sub": "${DynamoDBStack}-DDBTableARN"}}
+                                    ]
+                                }
+                            ]
                         }
-                    ]
-                }
-            }
-        },
-        "HelloTable": {
-            "Type": "AWS::DynamoDB::Table",
-            "Properties": {
-                "ProvisionedThroughput": {
-                    "ReadCapacityUnits": 5,
-                    "WriteCapacityUnits": 5
-                },
-                "AttributeDefinitions": [
-                    {
-                        "AttributeName": "user_id",
-                        "AttributeType": "S"
-                    }
-                ],
-                "KeySchema": [
-                    {
-                        "AttributeName": "user_id",
-                        "KeyType": "HASH"
                     }
                 ]
             }
         },
-        "MyApiGateway": {
+        "LambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+                "Role": {
+                    "Fn::GetAtt": [
+                        "LambdaRole",
+                        "Arn"
+                    ]
+                },
+                "Handler": "index.handler",
+                "Runtime": "nodejs8.10",
+                "Environment": {
+                    "Variables": {
+                        "TABLE_NAME": {
+                            "Fn::ImportValue": {"Fn::Sub": "${DynamoDBStack}-TableName"}
+                        }
+                    }
+                },
+                "Code": {
+                    "ZipFile": "exports.handler = function(event, context) {}\n"
+                }
+            }
+        },
+        "ApiGatewayRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": "apigateway.amazonaws.com"
+                            },
+                            "Action": "sts:AssumeRole"
+                        }
+                    ]
+                },
+                "Policies": [
+                    {
+                        "PolicyName": {
+                            "Fn::Sub": "${AWS::StackName}-api-gateway-policy"
+                        },
+                        "PolicyDocument": {
+                            "Version": "2012-10-17",
+                            "Statement": [
+                                {
+                                    "Effect": "Allow",
+                                    "Action": [
+                                        "lambda:InvokeFunction"
+                                    ],
+                                    "Resource": [
+                                        {
+                                            "Fn::GetAtt": [
+                                                "LambdaFunction",
+                                                "Arn"
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        "ApiGateway": {
             "Type": "AWS::ApiGateway::RestApi",
             "Properties": {
                 "Name": {
-                    "Fn::Sub": "${AWS::StackName}-MyApiGateway"
+                    "Fn::Sub": "${AWS::StackName}-api"
                 },
                 "Description": "A description",
                 "FailOnWarnings": true,
@@ -71,16 +134,16 @@
                         "application/json"
                     ],
                     "paths": {
-                        "/users/{userId}/hello": {
+                        "/users/{userid}/hello": {
                             "get": {
                                 "description": "TBD",
                                 "x-amazon-apigateway-integration": {
                                     "uri": {
-                                        "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${HelloLambda.Arn}/invocations"
+                                        "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFunction.Arn}/invocations"
                                     },
                                     "credentials": {
                                         "Fn::GetAtt": [
-                                            "MyApiGatewayRole",
+                                            "ApiGatewayRole",
                                             "Arn"
                                         ]
                                     },
@@ -91,7 +154,7 @@
                                 "operationId": "getHello",
                                 "parameters": [
                                     {
-                                        "name": "userId",
+                                        "name": "userid",
                                         "in": "path",
                                         "description": "TBD",
                                         "required": true,
@@ -104,11 +167,11 @@
                                 "description": "TBD",
                                 "x-amazon-apigateway-integration": {
                                     "uri": {
-                                        "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${HelloLambda.Arn}/invocations"
+                                        "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFunction.Arn}/invocations"
                                     },
                                     "credentials": {
                                         "Fn::GetAtt": [
-                                            "MyApiGatewayRole",
+                                            "ApiGatewayRole",
                                             "Arn"
                                         ]
                                     },
@@ -119,7 +182,7 @@
                                 "operationId": "postHello",
                                 "parameters": [
                                     {
-                                        "name": "userId",
+                                        "name": "userid",
                                         "in": "path",
                                         "description": "TBD",
                                         "required": true,
@@ -150,136 +213,22 @@
                 }
             }
         },
-        "MyApiGatewayDeployment": {
+        "ApiGatewayDeployment": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
                 "RestApiId": {
-                    "Ref": "MyApiGateway"
+                    "Ref": "ApiGateway"
                 },
                 "StageName": "prod"
             }
-        },
-        "MyApiGatewayRole": {
-            "Type": "AWS::IAM::Role",
-            "Properties": {
-                "AssumeRolePolicyDocument": {
-                    "Version": "2012-10-17",
-                    "Statement": [
-                        {
-                            "Effect": "Allow",
-                            "Principal": {
-                                "Service": "apigateway.amazonaws.com"
-                            },
-                            "Action": "sts:AssumeRole"
-                        }
-                    ]
-                },
-                "Policies": [
-                    {
-                        "PolicyName": "InvokeLambda",
-                        "PolicyDocument": {
-                            "Version": "2012-10-17",
-                            "Statement": [
-                                {
-                                    "Effect": "Allow",
-                                    "Action": [
-                                        "lambda:InvokeFunction"
-                                    ],
-                                    "Resource": [
-                                        {
-                                            "Fn::GetAtt": [
-                                                "HelloLambda",
-                                                "Arn"
-                                            ]
-                                        }
-                                    ]
-                                }
-                            ]
-                        }
-                    }
-                ]
-            }
-        },
-        "HelloLambda": {
-            "Type": "AWS::Lambda::Function",
-            "Properties": {
-                "Role": {
-                    "Fn::GetAtt": [
-                        "HelloLambdaRole",
-                        "Arn"
-                    ]
-                },
-                "Handler": "index.handleHttpRequest",
-                "Runtime": "nodejs6.10",
-                "Environment": {
-                    "Variables": {
-                        "HELLO_DB": {
-                            "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:*:table/${HelloTable}"
-                        }
-                    }
-                },
-                "Code": {
-                    "ZipFile": "exports.handlers = function(event, context) {}\n"
-                }
-            }
-        },
-        "HelloLambdaRole": {
-            "Type": "AWS::IAM::Role",
-            "Properties": {
-                "AssumeRolePolicyDocument": {
-                    "Version": "2012-10-17",
-                    "Statement": [
-                        {
-                            "Effect": "Allow",
-                            "Principal": {
-                                "Service": "lambda.amazonaws.com"
-                            },
-                            "Action": "sts:AssumeRole"
-                        }
-                    ]
-                },
-                "ManagedPolicyArns": [
-                    {
-                        "Ref": "BaseLambdaExecutionPolicy"
-                    }
-                ],
-                "Policies": [
-                    {
-                        "PolicyName": "getHello",
-                        "PolicyDocument": {
-                            "Version": "2012-10-17",
-                            "Statement": [
-                                {
-                                    "Effect": "Allow",
-                                    "Action": [
-                                        "dynamodb:GetItem"
-                                    ],
-                                    "Resource": {
-                                        "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:*:table/${HelloTable}"
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        "PolicyName": "putHello",
-                        "PolicyDocument": {
-                            "Version": "2012-10-17",
-                            "Statement": [
-                                {
-                                    "Effect": "Allow",
-                                    "Action": [
-                                        "dynamodb:PutItem"
-                                    ],
-                                    "Resource": {
-                                        "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:*:table/${HelloTable}"
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                ]
-            }
+        }
+    },
+    "Outputs": {
+        "ApiGatewayProdInvokeURL": {
+            "Value": {
+                "Fn::Sub": "https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/prod"
+            },
+            "Description": "API Gateway prod Invoke URL."
         }
     }
 }
