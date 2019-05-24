@@ -1,6 +1,6 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "This template: - Creates API Gateway and Lambda function. - Gets table name using cross stack reference. Modified from apigateway.1.json",
+    "Description": "This template creates API Gateway and Lambda function. Version: 1.0.0",
 
     "Parameters" : {
         "ApiGatewayName": {
@@ -63,7 +63,7 @@
                 "Environment": {
                     "Variables": {
                         "TABLE_NAME": {
-                            "Fn::ImportValue": {"Fn::Sub": "${DynamoDBStack}-TableName"}
+                            "Fn::ImportValue": {"Fn::Sub": "${DynamoDBStack}-DDBTableName"}
                         }
                     }
                 },
