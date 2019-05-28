@@ -144,13 +144,13 @@
         "DDBTableName": {
             "Value": {
                 "Ref": "TableName"
-            }
-        },
-        "Export": {"Name": {"Fn::Join": 
-            [
-                "-",
-                [{"Ref": "TableName"}, "TableName"]
-            ]
-        }}
+            },
+            "Export": {"Name": {"Fn::Join": 
+                [
+                    "-",
+                    [{"Ref": "TableName"}, "TableName"]
+                ]
+            }}
+        }
     }
 }
