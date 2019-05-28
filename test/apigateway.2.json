@@ -11,9 +11,49 @@
     },
 
     "Resources": {
+        "BaseLambdaExecutionPolicy": {
+            "Type": "AWS::IAM::ManagedPolicy",
+            "Properties": {
+                "Description": "Base permissions needed by all lambda functions.",
+                "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "logs:CreateLogGroup",
+                                "logs:CreateLogStream",
+                                "logs:PutLogEvents",
+                                "ec2:CreateNetworkInterface",
+                                "ec2:DescribeNetworkInterfaces",
+                                "ec2:DeleteNetworkInterface"
+                            ],
+                            "Resource": "*"
+                        }
+                    ]
+                }
+            }
+        },
         "LambdaRole": {
             "Type": "AWS::IAM::Role",
             "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": "lambda.amazonaws.com"
+                            },
+                            "Action": "sts:AssumeRole"
+                        }
+                    ]
+                },
+                "ManagedPolicyArns": [
+                    {
+                        "Ref": "BaseLambdaExecutionPolicy"
+                    }
+                ],
                 "Policies": [
                     {
                         "PolicyName": {
@@ -84,7 +124,7 @@
                 "Policies": [
                     {
                         "PolicyName": {
-                            "Fn::Sub": "${AWS::StackName}-api-gateway-policy"
+                            "Fn::Sub": "test-invoke-lambda"
                         },
                         "PolicyDocument": {
                             "Version": "2012-10-17",
