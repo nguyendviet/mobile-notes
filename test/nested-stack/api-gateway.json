@@ -6,10 +6,6 @@
         "ApiGatewayName": {
             "Description": "Name of the Cognito user pool as a parameter passed into this template.",
             "Type": "String"
-        },
-        "DynamoDBStack" : {
-            "Description": "Name of the DynamoDB table as a parameter passed into this template using cross stack reference.",
-            "Type": "String"
         }
     },
 
@@ -40,7 +36,7 @@
                                     ],
                                     "Effect": "Allow",
                                     "Resource": [
-                                        { "Fn::ImportValue": {"Fn::Sub": "${DynamoDBStack}-DDBTableARN"}}
+                                        "arn:aws:dynamodb:us-east-1:770402430649:table/demgames-test-table"
                                     ]
                                 }
                             ]
@@ -62,9 +58,7 @@
                 "Runtime": "nodejs8.10",
                 "Environment": {
                     "Variables": {
-                        "TABLE_NAME": {
-                            "Fn::ImportValue": {"Fn::Sub": "${DynamoDBStack}-DDBTableName"}
-                        }
+                        "TABLE_NAME": "demgames-test-table"
                     }
                 },
                 "Code": {

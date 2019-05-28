@@ -210,7 +210,7 @@
                     ]
                 },
                 "Handler": "index.handleHttpRequest",
-                "Runtime": "nodejs6.10",
+                "Runtime": "nodejs8.10",
                 "Environment": {
                     "Variables": {
                         "HELLO_DB": {

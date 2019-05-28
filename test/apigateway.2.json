@@ -6,7 +6,7 @@
         "DynamoDBStack" : {
             "Description": "Name of the DynamoDB table as a parameter passed into this template.",
             "Type": "String",
-            "Default" : "dynamodb-table"
+            "Default" : "test-dynamodb-table-2"
         }
     },
 
