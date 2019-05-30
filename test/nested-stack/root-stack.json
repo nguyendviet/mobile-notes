@@ -1,6 +1,6 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "This template uses nested stacks to provision the notes app. Version: 1.0.0",
+    "Description": "This template uses nested stacks to provision the notes app. Version: 1.0.1",
     
     "Resources": {
         "DynamoDBTable": {
@@ -56,7 +56,7 @@
                         "Fn::Sub": "${AWS::StackName}-api"
                     },
                     "DynamoDBStack": {
-                        "Fn::GetAtt": [ "DynamoDBTable", "Outputs.DDBTableName" ]
+                        "Fn::GetAtt": [ "DynamoDBTable", "Outputs.DDBStackName" ]
                     }
                 },
                 "TemplateURL": "https://s3.amazonaws.com/ndi-tech-cloudformation-templates/api-gateway.json"

@@ -1,18 +1,59 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "This template creates API Gateway and Lambda function. Version: 1.0.0",
+    "Description": "This template creates API Gateway and Lambda function. Version: 1.0.1",
 
     "Parameters" : {
         "ApiGatewayName": {
             "Description": "Name of the Cognito user pool as a parameter passed into this template.",
             "Type": "String"
+        },
+        "DynamoDBStack" : {
+            "Description": "Name of the stack that created the DynamoDB table for this app, passed as a parameter passed into this template.",
+            "Type": "String"
         }
     },
 
     "Resources": {
+        "BaseLambdaExecutionPolicy": {
+            "Type": "AWS::IAM::ManagedPolicy",
+            "Properties": {
+                "Description": "Base permissions needed by all lambda functions.",
+                "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "logs:CreateLogGroup",
+                                "logs:CreateLogStream",
+                                "logs:PutLogEvents"
+                            ],
+                            "Resource": "*"
+                        }
+                    ]
+                }
+            }
+        },
         "LambdaRole": {
             "Type": "AWS::IAM::Role",
             "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": "lambda.amazonaws.com"
+                            },
+                            "Action": "sts:AssumeRole"
+                        }
+                    ]
+                },
+                "ManagedPolicyArns": [
+                    {
+                        "Ref": "BaseLambdaExecutionPolicy"
+                    }
+                ],
                 "Policies": [
                     {
                         "PolicyName": {
@@ -36,7 +77,7 @@
                                     ],
                                     "Effect": "Allow",
                                     "Resource": [
-                                        "arn:aws:dynamodb:us-east-1:770402430649:table/demgames-test-table"
+                                        { "Fn::ImportValue": {"Fn::Sub": "${DynamoDBStack}-DDBTableARN"}}
                                     ]
                                 }
                             ]
@@ -58,7 +99,9 @@
                 "Runtime": "nodejs8.10",
                 "Environment": {
                     "Variables": {
-                        "TABLE_NAME": "demgames-test-table"
+                        "TABLE_NAME": {
+                            "Fn::ImportValue": {"Fn::Sub": "${DynamoDBStack}-DDBTableName"}
+                        }
                     }
                 },
                 "Code": {
