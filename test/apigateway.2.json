@@ -6,7 +6,7 @@
         "DynamoDBStack" : {
             "Description": "Name of the DynamoDB table as a parameter passed into this template.",
             "Type": "String",
-            "Default" : "test-dynamodb-table-2"
+            "Default" : "test-dynamodb-stack-2"
         }
     },
 
@@ -23,10 +23,7 @@
                             "Action": [
                                 "logs:CreateLogGroup",
                                 "logs:CreateLogStream",
-                                "logs:PutLogEvents",
-                                "ec2:CreateNetworkInterface",
-                                "ec2:DescribeNetworkInterfaces",
-                                "ec2:DeleteNetworkInterface"
+                                "logs:PutLogEvents"
                             ],
                             "Resource": "*"
                         }
@@ -97,7 +94,7 @@
                 "Environment": {
                     "Variables": {
                         "TABLE_NAME": {
-                            "Fn::ImportValue": {"Fn::Sub": "${DynamoDBStack}-TableName"}
+                            "Fn::ImportValue": {"Fn::Sub": "${DynamoDBStack}-DDBTableName"}
                         }
                     }
                 },

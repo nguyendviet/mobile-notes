@@ -134,23 +134,21 @@
                     "Arn"
                 ]
             },
-            "Export": {"Name": {"Fn::Join": 
-                [
-                    "-",
-                    [{"Ref": "TableName"}, "DDBTableARN"]
-                ]
-            }}
+            "Export": {
+                "Name": {
+                    "Fn::Sub": "${AWS::StackName}-DDBTableARN"
+                }
+            }
         },
         "DDBTableName": {
             "Value": {
                 "Ref": "TableName"
             },
-            "Export": {"Name": {"Fn::Join": 
-                [
-                    "-",
-                    [{"Ref": "TableName"}, "TableName"]
-                ]
-            }}
+            "Export": {
+                "Name": {
+                    "Fn::Sub": "${AWS::StackName}-DDBTableName"
+                }
+            }
         }
     }
 }
