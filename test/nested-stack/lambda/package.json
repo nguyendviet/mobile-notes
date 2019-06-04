@@ -1,0 +1,15 @@
+{
+    "name": "note-microservice",
+    "version": "1.0.0",
+    "description": "A Lambda function for CRUD operations for tasks in the Mobile Notes app",
+    "main": "handler.js",
+    "private": true,
+    "dependencies": {
+        "node-uuid": "*",
+        "moment": "*",
+        "underscore": "*"
+    },
+    "keywords": [],
+    "author": "AWS",
+    "license": "MIT"
+}
