@@ -1,6 +1,6 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "This template creates API Gateway and Lambda function. Version: 1.0.1",
+    "Description": "This template creates API Gateway and Lambda function. Version: 1.0.2",
 
     "Parameters" : {
         "ApiGatewayName": {
@@ -183,7 +183,7 @@
                         "application/json"
                     ],
                     "paths": {
-                        "/users/{userid}/hello": {
+                        "/notes/{noteid}": {
                             "get": {
                                 "description": "TBD",
                                 "x-amazon-apigateway-integration": {
@@ -200,7 +200,7 @@
                                     "httpMethod": "POST",
                                     "type": "aws_proxy"
                                 },
-                                "operationId": "getHello",
+                                "operationId": "getNote",
                                 "parameters": [
                                     {
                                         "name": "userid",
@@ -228,7 +228,7 @@
                                     "httpMethod": "POST",
                                     "type": "aws_proxy"
                                 },
-                                "operationId": "postHello",
+                                "operationId": "postNote",
                                 "parameters": [
                                     {
                                         "name": "userid",

@@ -1,6 +1,6 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "This template uses nested stacks to provision the notes app. Version: 1.0.1",
+    "Description": "This template uses nested stacks to provision the notes app. Version: 1.0.2",
     
     "Resources": {
         "DynamoDBTable": {
@@ -54,6 +54,9 @@
                 "Parameters": {
                     "ApiGatewayName": {
                         "Fn::Sub": "${AWS::StackName}-api"
+                    },
+                    "CognitoUserPoolARN": {
+                        "Fn::GetAtt": [ "Cognito", "Outputs.UserPoolARN" ]
                     },
                     "DynamoDBStack": {
                         "Fn::GetAtt": [ "DynamoDBTable", "Outputs.DDBStackName" ]

@@ -1,10 +1,14 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "This template creates API Gateway and Lambda function. Version: 1.0.2",
+    "Description": "This template creates API Gateway and Lambda function. Version: 1.0.3",
 
     "Parameters" : {
         "ApiGatewayName": {
             "Description": "Name of the Cognito user pool as a parameter passed into this template.",
+            "Type": "String"
+        },
+        "CognitoUserPoolARN": {
+            "Description": "Cognito User Pool ARN passed into this template from root stack.",
             "Type": "String"
         },
         "DynamoDBStack" : {
@@ -165,100 +169,54 @@
                     ]]
                 },
                 "Description": "A description",
-                "FailOnWarnings": true,
-                "Body": {
-                    "swagger": 2,
-                    "info": {
-                        "description": "The account API.\n",
-                        "version": 1
-                    },
-                    "basePath": "/",
-                    "schemes": [
-                        "https"
-                    ],
-                    "consumes": [
-                        "application/json"
-                    ],
-                    "produces": [
-                        "application/json"
-                    ],
-                    "paths": {
-                        "/notes/{noteid}": {
-                            "get": {
-                                "description": "TBD",
-                                "x-amazon-apigateway-integration": {
-                                    "uri": {
-                                        "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFunction.Arn}/invocations"
-                                    },
-                                    "credentials": {
-                                        "Fn::GetAtt": [
-                                            "ApiGatewayRole",
-                                            "Arn"
-                                        ]
-                                    },
-                                    "passthroughBehavior": "when_no_match",
-                                    "httpMethod": "POST",
-                                    "type": "aws_proxy"
-                                },
-                                "operationId": "getNote",
-                                "parameters": [
-                                    {
-                                        "name": "userid",
-                                        "in": "path",
-                                        "description": "TBD",
-                                        "required": true,
-                                        "type": "string",
-                                        "format": "uuid"
-                                    }
-                                ]
-                            },
-                            "post": {
-                                "description": "TBD",
-                                "x-amazon-apigateway-integration": {
-                                    "uri": {
-                                        "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFunction.Arn}/invocations"
-                                    },
-                                    "credentials": {
-                                        "Fn::GetAtt": [
-                                            "ApiGatewayRole",
-                                            "Arn"
-                                        ]
-                                    },
-                                    "passthroughBehavior": "when_no_match",
-                                    "httpMethod": "POST",
-                                    "type": "aws_proxy"
-                                },
-                                "operationId": "postNote",
-                                "parameters": [
-                                    {
-                                        "name": "userid",
-                                        "in": "path",
-                                        "description": "TBD",
-                                        "required": true,
-                                        "type": "string",
-                                        "format": "uuid"
-                                    },
-                                    {
-                                        "name": "body",
-                                        "in": "body",
-                                        "description": "TBD",
-                                        "required": true,
-                                        "schema": {
-                                            "type": "object",
-                                            "required": [
-                                                "email"
-                                            ],
-                                            "properties": {
-                                                "email": {
-                                                    "type": "string"
-                                                }
-                                            }
-                                        }
-                                    }
-                                ]
-                            }
-                        }
+                "FailOnWarnings": true
+            }
+        },
+        "GatewayAuthorizer": {
+            "Type" : "AWS::ApiGateway::Authorizer",
+            "Properties" : {
+                "AuthorizerCredentials" : null,
+                "IdentitySource" : "method.request.header.Authorization",
+                "IdentityValidationExpression" : "^[a-zA-Z0-9]{3,32}$",
+                "Name" : {
+                    "Fn::Sub": "${ApiGatewayName}-authorizer"
+                },
+                "ProviderARNs" : [
+                    {
+                        "Ref": "CognitoUserPoolARN"
                     }
+                ],
+                "RestApiId" : {
+                    "Fn::GetAtt": ["ApiGateway", "RootResourceId"]
+                },
+                "Type" : "COGNITO_USER_POOLS"
+            }
+        },
+        "GatewayMethod": {
+            "Type" : "AWS::ApiGateway::Method",
+            "Properties" : {
+                "ApiKeyRequired" : false,
+                "AuthorizationType" : "Cognito",
+                "HttpMethod" : "ANY",
+                "Integration" : {
+                    "IntegrationHttpMethod" : "ANY",
+                    "Type" : "AWS",
+                    "Uri" : {
+                        "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFunction.Arn}/invocations"
+                    }
+                },
+                "MethodResponses" : [{
+                    "ResponseModels": {
+                      "application/json": "Empty"
+                    },
+                    "StatusCode": 200
+                }],
+                "RequestModels" : {"application/json": "Empty"},
+                "ResourceId" : {
+                    "Fn::GetAtt": ["ApiGateway", "RootResourceId"] 
+                },
+                "RestApiId" : {
+                    "Ref": "ApiGateway"
                 }
             }
         },
