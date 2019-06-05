@@ -175,7 +175,9 @@
         "GatewayAuthorizer": {
             "Type" : "AWS::ApiGateway::Authorizer",
             "Properties" : {
-                "AuthorizerCredentials" : null,
+                "AuthorizerCredentials" : {
+                    "Fn::GetAtt": ["ApiGatewayRole", "Arn"]
+                },
                 "IdentitySource" : "method.request.header.Authorization",
                 "IdentityValidationExpression" : "^[a-zA-Z0-9]{3,32}$",
                 "Name" : {
