@@ -211,7 +211,7 @@
               }
             }
         },
-        "post": {
+        "methodANY": {
             "Type": "AWS::ApiGateway::Method",
             "Properties": {
               "AuthorizationType": "COGNITO_USER_POOLS",
@@ -220,10 +220,10 @@
               "ResourceId": {
                 "Fn::GetAtt": ["ApiGateway", "RootResourceId"] 
             },
-              "HttpMethod": "PUT",
+              "HttpMethod": "ANY",
               "Integration": {
                 "Type": "AWS_PROXY",
-                "IntegrationHttpMethod": "POST",
+                "IntegrationHttpMethod": "ANY",
                 "Uri": {"Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFunction.Arn}/invocations"},
                 "IntegrationResponses": [{
                   "StatusCode": 204
@@ -248,7 +248,7 @@
         },
         "ApiGatewayDeployment": {
             "Type": "AWS::ApiGateway::Deployment",
-            "DependsOn": "post",
+            "DependsOn": "methodANY",
             "Properties": {
                 "RestApiId": {
                     "Ref": "ApiGateway"
