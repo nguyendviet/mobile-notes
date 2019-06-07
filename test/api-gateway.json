@@ -1,6 +1,6 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "This template creates API Gateway and Lambda function. Version: 1.0.3",
+    "Description": "This template creates API Gateway and Lambda function. Version: 1.0.4",
 
     "Parameters" : {
         "ApiGatewayName": {
@@ -176,7 +176,6 @@
                     "Fn::GetAtt": ["ApiGatewayRole", "Arn"]
                 },
                 "IdentitySource" : "method.request.header.Authorization",
-                "IdentityValidationExpression" : "^[a-zA-Z0-9]{3,32}$",
                 "Name" : {
                     "Fn::Sub": "${ApiGatewayName}-authorizer"
                 },
@@ -234,9 +233,6 @@
               },
               "RequestModels": {
                 "application/json": {"Ref": "Model"}
-              },
-              "RequestParameters": {
-                "method.request.header.Authorization": true
               },
               "MethodResponses": [{
                 "ResponseModels": {
