@@ -163,10 +163,7 @@
             "Type": "AWS::ApiGateway::RestApi",
             "Properties": {
                 "Name": {
-                    "Fn::Join": ["-", [
-                        {"Ref": "ApiGatewayName"}, 
-                        "api"
-                    ]]
+                    "Ref": "ApiGatewayName"
                 },
                 "Description": "A description",
                 "FailOnWarnings": true,
