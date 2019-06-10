@@ -226,10 +226,7 @@
                     "Uri": {"Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFunction.Arn}/invocations"},
                     "IntegrationResponses": [{
                         "StatusCode": 204
-                    }],
-                    "RequestTemplates": {
-                        "application/json": "{\"action\": \"put\", \"body\": $input.json('$')}"
-                    }
+                    }]
                 },
                 "MethodResponses": [{
                     "ResponseModels": {
@@ -263,10 +260,7 @@
                             },
                             "StatusCode": "200"
                         }
-                    ],
-                    "RequestTemplates": {
-                        "application/json": "{\"statusCode\": 200}"
-                    }
+                    ]
                 },
                 "MethodResponses": [
                     {
@@ -299,10 +293,7 @@
                     "Uri": {"Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFunction.Arn}/invocations"},
                     "IntegrationResponses": [{
                         "StatusCode": 204
-                    }],
-                    "RequestTemplates": {
-                        "application/json": "{\"action\": \"put\", \"body\": $input.json('$')}"
-                    }
+                    }]
                 },
                 "MethodResponses": [{
                     "ResponseModels": {
@@ -336,10 +327,7 @@
                             },
                             "StatusCode": "200"
                         }
-                    ],
-                    "RequestTemplates": {
-                        "application/json": "{\"statusCode\": 200}"
-                    }
+                    ]
                 },
                 "MethodResponses": [
                     {
