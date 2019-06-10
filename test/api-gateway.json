@@ -190,26 +190,6 @@
                 "Type" : "COGNITO_USER_POOLS"
             }
         },
-        "Model": {
-            "Type": "AWS::ApiGateway::Model",
-            "Properties": {
-              "ContentType": "application/json",
-              "Name": "user",
-              "RestApiId": {"Ref": "ApiGateway"},
-              "Schema": {
-                "$schema": "http://json-schema.org/draft-04/schema#",
-                "title": "user",
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "userid": {
-                    "type": "string"
-                  }
-                },
-                "required": ["userid"]
-              }
-            }
-        },
         "methodANY": {
             "Type": "AWS::ApiGateway::Method",
             "Properties": {
@@ -230,9 +210,6 @@
                 "RequestTemplates": {
                   "application/json": "{\"action\": \"put\", \"body\": $input.json('$')}"
                 }
-              },
-              "RequestModels": {
-                "application/json": {"Ref": "Model"}
               },
               "MethodResponses": [{
                 "ResponseModels": {
@@ -270,9 +247,6 @@
                     "RequestTemplates": {
                         "application/json": "{\"statusCode\": 200}"
                     }
-                },
-                "RequestModels": {
-                    "application/json": {"Ref": "Model"}
                 },
                 "MethodResponses": [
                     {
