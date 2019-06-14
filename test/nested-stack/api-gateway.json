@@ -230,7 +230,12 @@
                 },
                 "MethodResponses": [{
                     "ResponseModels": {
-                    "application/json": "Empty"
+                        "application/json": "Empty"
+                    },
+                    "ResponseParameters": {
+                        "method.response.header.Access-Control-Allow-Headers": true,
+                        "method.response.header.Access-Control-Allow-Methods": true,
+                        "method.response.header.Access-Control-Allow-Origin": true
                     },
                     "StatusCode": 200
                 }]
@@ -297,7 +302,12 @@
                 },
                 "MethodResponses": [{
                     "ResponseModels": {
-                    "application/json": "Empty"
+                        "application/json": "Empty"
+                    },
+                    "ResponseParameters": {
+                        "method.response.header.Access-Control-Allow-Headers": true,
+                        "method.response.header.Access-Control-Allow-Methods": true,
+                        "method.response.header.Access-Control-Allow-Origin": true
                     },
                     "StatusCode": 200
                 }]
