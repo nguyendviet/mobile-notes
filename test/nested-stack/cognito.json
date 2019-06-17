@@ -92,6 +92,27 @@
                     "Ref": "UserPool"
                 }
             }
+        },
+        "IdentityPool": {
+            "Type" : "AWS::Cognito::IdentityPool",
+            "Properties" : {
+                "AllowUnauthenticatedIdentities" : false,
+                "CognitoIdentityProviders" : [{
+                    "ClientId" : {
+                        "Ref": "UserPoolClient"
+                    },
+                    "ProviderName" : {
+                        "Ref": "UserPool"
+                    },
+                    "ServerSideTokenCheck" : true
+                }],
+                "IdentityPoolName" : {
+                    "Fn::Join" : ["-", [ 
+                        {"Ref": "CognitoUserPoolName"}, 
+                        "identity-pool" 
+                    ]]
+                }
+            }
         }
     },
     "Outputs": {

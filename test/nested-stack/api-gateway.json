@@ -223,21 +223,41 @@
                 "Integration": {
                     "Type": "AWS_PROXY",
                     "IntegrationHttpMethod": "ANY",
-                    "Uri": {"Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFunction.Arn}/invocations"},
+                    "Uri": {
+                        "Fn::Join": ["",
+                            [
+                                "arn:aws:apigateway:",
+                                {"Ref": "AWS::Region"},
+                                ":lambda:path/2015-03-31/functions/",
+                                {
+                                    "Fn::GetAtt": [
+                                        "LambdaFunction",
+                                        "Arn"
+                                    ]
+                                },
+                                "/invocations"
+                            ]
+                        ]
+                    },
                     "IntegrationResponses": [{
-                        "StatusCode": 204
+                        "StatusCode": 200,
+                        "ResponseTemplates": {
+                            "application/json": "$input.json('$')"
+                        },
+                        "ResponseParameters": {
+                            "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+                            "method.response.header.Access-Control-Allow-Methods": "'GET,POST,PUT,DELETE,OPTIONS'",
+                            "method.response.header.Access-Control-Allow-Origin": "'*'"
+                        }
                     }]
                 },
                 "MethodResponses": [{
-                    "ResponseModels": {
-                        "application/json": "Empty"
-                    },
                     "ResponseParameters": {
                         "method.response.header.Access-Control-Allow-Headers": true,
                         "method.response.header.Access-Control-Allow-Methods": true,
                         "method.response.header.Access-Control-Allow-Origin": true
                     },
-                    "StatusCode": 200
+                    "StatusCode": "200"
                 }]
             }
         },
@@ -295,21 +315,41 @@
                 "Integration": {
                     "Type": "AWS_PROXY",
                     "IntegrationHttpMethod": "ANY",
-                    "Uri": {"Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFunction.Arn}/invocations"},
+                    "Uri": {
+                        "Fn::Join": ["",
+                            [
+                                "arn:aws:apigateway:",
+                                {"Ref": "AWS::Region"},
+                                ":lambda:path/2015-03-31/functions/",
+                                {
+                                    "Fn::GetAtt": [
+                                        "LambdaFunction",
+                                        "Arn"
+                                    ]
+                                },
+                                "/invocations"
+                            ]
+                        ]
+                    },
                     "IntegrationResponses": [{
-                        "StatusCode": 204
+                        "StatusCode": 200,
+                        "ResponseTemplates": {
+                            "application/json": "$input.json('$')"
+                        },
+                        "ResponseParameters": {
+                            "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+                            "method.response.header.Access-Control-Allow-Methods": "'GET,POST,PUT,DELETE,OPTIONS'",
+                            "method.response.header.Access-Control-Allow-Origin": "'*'"
+                        }
                     }]
                 },
                 "MethodResponses": [{
-                    "ResponseModels": {
-                        "application/json": "Empty"
-                    },
                     "ResponseParameters": {
                         "method.response.header.Access-Control-Allow-Headers": true,
                         "method.response.header.Access-Control-Allow-Methods": true,
                         "method.response.header.Access-Control-Allow-Origin": true
                     },
-                    "StatusCode": 200
+                    "StatusCode": "200"
                 }]
             }
         },

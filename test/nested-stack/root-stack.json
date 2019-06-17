@@ -41,7 +41,7 @@
             "Properties": {
                 "Parameters": {
                     "CognitoUserPoolName": {
-                        "Fn::Sub": "${AWS::StackName}-pool"
+                        "Fn::Sub": "${AWS::StackName}"
                     }
                 },
                 "TemplateURL": "https://s3.amazonaws.com/ndi-tech-cloudformation-templates/cognito-userpool.json"

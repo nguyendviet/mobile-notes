@@ -1,0 +1,112 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "This template creates AWS Cognito UserPool, UserPoolClient and IdentityPool. Version: 1.0.1",
+ 
+    "Parameters" : {
+        "CognitoUserPoolName": {
+            "Description": "Name of the Cognito user pool as a parameter passed into this template.",
+            "Type": "String"
+        }
+    },
+
+    "Resources": {
+        "UserPool": {
+            "Type": "AWS::Cognito::UserPool",
+            "Properties": {
+                "UserPoolName" : {
+                    "Ref": "CognitoUserPoolName"
+                },
+                "Policies": {
+                    "PasswordPolicy": {
+                        "MinimumLength": 8,
+                        "RequireUppercase": true,
+                        "RequireLowercase": true,
+                        "RequireNumbers": true,
+                        "RequireSymbols": true
+                    }
+                },
+                "Schema": [
+                    {
+                        "Name": "name",
+                        "AttributeDataType": "String",
+                        "Mutable": true,
+                        "Required": false
+                    },
+                    {
+                        "Name": "email",
+                        "AttributeDataType": "String",
+                        "Mutable": false,
+                        "Required": true
+                    },
+                    {
+                        "Name": "phone_number",
+                        "AttributeDataType": "String",
+                        "Mutable": false,
+                        "Required": false
+                    }
+                ],
+                "LambdaConfig": {},
+                "AutoVerifiedAttributes": [
+                    "email"
+                ],
+                "UsernameAttributes": [
+                    "email"
+                ],
+                "SmsVerificationMessage": "Your verification code is {####}. ",
+                "EmailVerificationMessage": "Your app verification code is {####}. ",
+                "EmailVerificationSubject": "Your app verification code",
+                "SmsAuthenticationMessage": "Your authentication code is {####}. ",
+                "MfaConfiguration": "OFF",
+                "EmailConfiguration": {},
+                "UserPoolTags": {},
+                "AdminCreateUserConfig": {
+                    "AllowAdminCreateUserOnly": false,
+                    "UnusedAccountValidityDays": 7,
+                    "InviteMessageTemplate": {
+                        "SMSMessage": "Your username is {username} and temporary password is {####}. ",
+                        "EmailMessage": "Your username is {username} and temporary password is {####}. ",
+                        "EmailSubject": "Your temporary password"
+                    }
+                }         
+            }
+        },
+        "UserPoolClient": {
+            "Type": "AWS::Cognito::UserPoolClient",
+            "Description": "App Client.",
+            "DependsOn": "UserPool",
+            "Properties": {
+                "ClientName": {
+                    "Fn::Sub": "${CognitoUserPoolName}Client"
+                },
+                "ExplicitAuthFlows": [
+                    "ADMIN_NO_SRP_AUTH"
+                ],
+                "GenerateSecret": false,
+                "RefreshTokenValidity": 30,
+                "UserPoolId": {
+                    "Ref": "UserPool"
+                }
+            }
+        },
+        "IdentityPool": {
+            "Type" : "AWS::Cognito::IdentityPool",
+            "DependsOn": "UserPoolClient",
+            "Properties" : {
+                "AllowUnauthenticatedIdentities" : false,
+                "IdentityPoolName": {
+                    "Fn::Sub": "${CognitoUserPoolName}IdentityPool"
+                }
+            }
+        }
+    },
+    "Outputs": {
+        "UserPoolARN": {
+            "Value": {
+                "Fn::GetAtt": [
+                    "UserPool",
+                    "Arn"
+                ]
+            }
+        }
+    }
+}
