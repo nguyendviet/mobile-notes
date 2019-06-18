@@ -93,6 +93,19 @@
             "DependsOn": "UserPoolClient",
             "Properties" : {
                 "AllowUnauthenticatedIdentities" : false,
+                "CognitoIdentityProviders": [
+                    {
+                        "ClientId": {
+                            "Ref": "UserPoolClient"
+                        },
+                        "ProviderName": {
+                            "Fn::GetAtt": [
+                                "UserPool",
+                                "ProviderName"
+                            ]
+                        }
+                    }
+                ],
                 "IdentityPoolName": {
                     "Fn::Sub": "${CognitoUserPoolName}IdentityPool"
                 }
