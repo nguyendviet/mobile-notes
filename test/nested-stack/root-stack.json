@@ -97,7 +97,6 @@
                 "TemplateURL": "https://s3.amazonaws.com/ndi-tech-cloudformation-templates/identity-pool.json"
             }
         }
-        
     },
 
     "Outputs": {
