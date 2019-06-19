@@ -81,11 +81,11 @@
                     "UserPoolId": {
                         "Fn::GetAtt": [ "Cognito", "Outputs.UserPoolId" ]
                     },
-                    "UserPoolProviderName": {
-                        "Fn::GetAtt": [ "Cognito", "Outputs.ProviderName" ]
-                    },
                     "AppClientId": {
                         "Fn::GetAtt": [ "Cognito", "Outputs.AppClientId" ]
+                    },
+                    "UserPoolProviderName": {
+                        "Fn::GetAtt": [ "Cognito", "Outputs.ProviderName" ]
                     },
                     "UserPoolName": {
                         "Fn::GetAtt": [ "Cognito", "Outputs.UserPoolName" ]

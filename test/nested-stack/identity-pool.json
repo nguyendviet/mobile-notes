@@ -7,12 +7,12 @@
             "Description": "Cognito User Pool ID passed into this stack.",
             "Type": "String"
         },
-        "UserPoolProviderName": {
-            "Description": "Cognito User Pool Provider name passed into this stack. Default Ouput of AWS::Cognito::UserPool.",
-            "Type": "String"
-        },
         "AppClientId": {
             "Description": "ID of the App Client of the Cognito User Pool passed into this stack.",
+            "Type": "String"
+        },
+        "UserPoolProviderName": {
+            "Description": "Cognito User Pool Provider name passed into this stack. Default Ouput of AWS::Cognito::UserPool.",
             "Type": "String"
         },
         "UserPoolName": {
@@ -81,16 +81,14 @@
                                 "execute-api:Invoke"
                             ],
                             "Resource": [
-                                "arn:aws:execute-api:us-east-1:*:7oa6taac7i/*/*/*"
+                                "arn:aws:execute-api:us-east-1:*:jaoq9rbgx7/*/*/*"
                             ]
                         }
                     ]
                 },
                 "Policies": [
                     {
-                        "PolicyName": {
-                            "Fn::Sub": "${UserPoolName}CognitoAuthPolicy"
-                        },
+                        "PolicyName": "CognitoAuthPolicy",
                         "PolicyDocument": {
                             "Version": "2012-10-17",
                             "Statement": [
@@ -138,9 +136,7 @@
                 },
                 "Policies": [
                     {
-                        "PolicyName": {
-                            "Fn::Sub": "${UserPoolName}CognitoUnauthPolicy"
-                        },
+                        "PolicyName": "CognitoUnauthPolicy",
                         "PolicyDocument": {
                             "Version": "2012-10-17",
                             "Statement": [
