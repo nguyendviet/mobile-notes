@@ -63,7 +63,7 @@
             },
             "Description": "The IPv4 DNS name of the bucket."
         },
-        "BucketName": {
+        "UploadBucketName": {
             "Value": {
                 "Ref": "BucketName"
             }

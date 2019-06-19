@@ -28,6 +28,9 @@
         "BucketPolicy": {
             "Type": "AWS::S3::BucketPolicy",
             "Properties": {
+                "Bucket": {
+                    "Ref": "S3Bucket"
+                },
                 "PolicyDocument": {
                     "Id": "MyPolicy",
                     "Version": "2012-10-17",
@@ -51,9 +54,6 @@
                             }
                         }
                     ]
-                },
-                "Bucket": {
-                    "Ref": "S3Bucket"
                 }
             }
         }
