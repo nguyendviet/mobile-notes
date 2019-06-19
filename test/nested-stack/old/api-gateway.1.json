@@ -1,10 +1,14 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "This template creates API Gateway and Lambda function. Version: 1.0.2",
+    "Description": "This template creates API Gateway and Lambda function. Version: 1.0.4",
 
     "Parameters" : {
         "ApiGatewayName": {
             "Description": "Name of the Cognito user pool as a parameter passed into this template.",
+            "Type": "String"
+        },
+        "CognitoUserPoolARN": {
+            "Description": "Cognito User Pool ARN passed into this template from root stack.",
             "Type": "String"
         },
         "DynamoDBStack" : {
@@ -109,6 +113,16 @@
                 }
             }
         },
+        "ApiGateway": {
+            "Type": "AWS::ApiGateway::RestApi",
+            "Properties": {
+                "Name": {
+                    "Ref": "ApiGatewayName"
+                },
+                "Description": "A description",
+                "FailOnWarnings": true
+            }
+        },
         "ApiGatewayRole": {
             "Type": "AWS::IAM::Role",
             "Properties": {
@@ -155,115 +169,234 @@
                 ]
             }
         },
-        "ApiGateway": {
-            "Type": "AWS::ApiGateway::RestApi",
-            "Properties": {
-                "Name": {
-                    "Fn::Join": ["-", [
-                        {"Ref": "ApiGatewayName"}, 
-                        "api"
-                    ]]
+        "GatewayAuthorizer": {
+            "Type" : "AWS::ApiGateway::Authorizer",
+            "Properties" : {
+                "AuthorizerCredentials" : {
+                    "Fn::GetAtt": ["ApiGatewayRole", "Arn"]
                 },
-                "Description": "A description",
-                "FailOnWarnings": true,
-                "Body": {
-                    "swagger": 2,
-                    "info": {
-                        "description": "The account API.\n",
-                        "version": 1
-                    },
-                    "basePath": "/",
-                    "schemes": [
-                        "https"
-                    ],
-                    "consumes": [
-                        "application/json"
-                    ],
-                    "produces": [
-                        "application/json"
-                    ],
-                    "paths": {
-                        "/notes/{noteid}": {
-                            "get": {
-                                "description": "TBD",
-                                "x-amazon-apigateway-integration": {
-                                    "uri": {
-                                        "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFunction.Arn}/invocations"
-                                    },
-                                    "credentials": {
-                                        "Fn::GetAtt": [
-                                            "ApiGatewayRole",
-                                            "Arn"
-                                        ]
-                                    },
-                                    "passthroughBehavior": "when_no_match",
-                                    "httpMethod": "POST",
-                                    "type": "aws_proxy"
-                                },
-                                "operationId": "getNote",
-                                "parameters": [
-                                    {
-                                        "name": "userid",
-                                        "in": "path",
-                                        "description": "TBD",
-                                        "required": true,
-                                        "type": "string",
-                                        "format": "uuid"
-                                    }
-                                ]
-                            },
-                            "post": {
-                                "description": "TBD",
-                                "x-amazon-apigateway-integration": {
-                                    "uri": {
-                                        "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFunction.Arn}/invocations"
-                                    },
-                                    "credentials": {
-                                        "Fn::GetAtt": [
-                                            "ApiGatewayRole",
-                                            "Arn"
-                                        ]
-                                    },
-                                    "passthroughBehavior": "when_no_match",
-                                    "httpMethod": "POST",
-                                    "type": "aws_proxy"
-                                },
-                                "operationId": "postNote",
-                                "parameters": [
-                                    {
-                                        "name": "userid",
-                                        "in": "path",
-                                        "description": "TBD",
-                                        "required": true,
-                                        "type": "string",
-                                        "format": "uuid"
-                                    },
-                                    {
-                                        "name": "body",
-                                        "in": "body",
-                                        "description": "TBD",
-                                        "required": true,
-                                        "schema": {
-                                            "type": "object",
-                                            "required": [
-                                                "email"
-                                            ],
-                                            "properties": {
-                                                "email": {
-                                                    "type": "string"
-                                                }
-                                            }
-                                        }
-                                    }
-                                ]
-                            }
-                        }
+                "IdentitySource" : "method.request.header.Authorization",
+                "Name" : {
+                    "Fn::Sub": "${ApiGatewayName}-authorizer"
+                },
+                "ProviderARNs" : [
+                    {
+                        "Ref": "CognitoUserPoolARN"
                     }
-                }
+                ],
+                "RestApiId" : {
+                    "Ref": "ApiGateway"
+                },
+                "Type" : "COGNITO_USER_POOLS"
+            }
+        },
+        "resourceNotes": {
+            "Type" : "AWS::ApiGateway::Resource",
+            "Properties" : {
+                "ParentId" : {
+                    "Fn::GetAtt": ["ApiGateway", "RootResourceId"]
+                },
+                "PathPart" : "notes",
+                "RestApiId" : {"Ref": "ApiGateway"}
+            }
+        },
+        "resourceNoteId": {
+            "Type" : "AWS::ApiGateway::Resource",
+            "Properties" : {
+                "ParentId" : {
+                    "Ref": "resourceNotes"
+                },
+                "PathPart" : "{noteid}",
+                "RestApiId" : {"Ref": "ApiGateway"}
+            }
+        },
+        "methodNotesANY": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+                "AuthorizationType": "COGNITO_USER_POOLS",
+                "AuthorizerId": {"Ref": "GatewayAuthorizer"},
+                "RestApiId": {"Ref": "ApiGateway"},
+                "ResourceId": {
+                    "Ref": "resourceNotes"
+                },
+                "HttpMethod": "ANY",
+                "Integration": {
+                    "Type": "AWS_PROXY",
+                    "IntegrationHttpMethod": "ANY",
+                    "Uri": {
+                        "Fn::Join": ["",
+                            [
+                                "arn:aws:apigateway:",
+                                {"Ref": "AWS::Region"},
+                                ":lambda:path/2015-03-31/functions/",
+                                {
+                                    "Fn::GetAtt": [
+                                        "LambdaFunction",
+                                        "Arn"
+                                    ]
+                                },
+                                "/invocations"
+                            ]
+                        ]
+                    },
+                    "IntegrationResponses": [{
+                        "StatusCode": 200,
+                        "ResponseTemplates": {
+                            "application/json": "$input.json('$')"
+                        },
+                        "ResponseParameters": {
+                            "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+                            "method.response.header.Access-Control-Allow-Methods": "'GET,POST,PUT,DELETE,OPTIONS'",
+                            "method.response.header.Access-Control-Allow-Origin": "'*'"
+                        }
+                    }]
+                },
+                "MethodResponses": [{
+                    "ResponseParameters": {
+                        "method.response.header.Access-Control-Allow-Headers": true,
+                        "method.response.header.Access-Control-Allow-Methods": true,
+                        "method.response.header.Access-Control-Allow-Origin": true
+                    },
+                    "StatusCode": "200"
+                }]
+            }
+        },
+        "methodNotesOPTIONS": {
+            "Description": "Enable CORS for resource.",
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+                "AuthorizationType": "NONE",
+                "RestApiId": {"Ref": "ApiGateway"},
+                "ResourceId": {
+                    "Ref": "resourceNotes"
+                },
+                "HttpMethod": "OPTIONS",
+                "Integration": {
+                    "Type": "MOCK",
+                    "IntegrationResponses": [
+                        {
+                            "ResponseParameters": {
+                                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+                                "method.response.header.Access-Control-Allow-Methods": "'GET,POST,PUT,DELETE,OPTIONS'",
+                                "method.response.header.Access-Control-Allow-Origin": "'*'"
+                            },
+                            "ResponseTemplates": {
+                                "application/json": ""
+                            },
+                            "StatusCode": "200"
+                        }
+                    ]
+                },
+                "MethodResponses": [
+                    {
+                        "ResponseModels": {
+                            "application/json": "Empty"
+                        },
+                        "ResponseParameters": {
+                            "method.response.header.Access-Control-Allow-Headers": true,
+                            "method.response.header.Access-Control-Allow-Methods": true,
+                            "method.response.header.Access-Control-Allow-Origin": true
+                        },
+                        "StatusCode": "200"
+                    }
+                ]
+            }
+        },
+        "methodNoteIdANY": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+                "AuthorizationType": "COGNITO_USER_POOLS",
+                "AuthorizerId": {"Ref": "GatewayAuthorizer"},
+                "RestApiId": {"Ref": "ApiGateway"},
+                "ResourceId": {
+                    "Ref": "resourceNoteId"
+                },
+                "HttpMethod": "ANY",
+                "Integration": {
+                    "Type": "AWS_PROXY",
+                    "IntegrationHttpMethod": "ANY",
+                    "Uri": {
+                        "Fn::Join": ["",
+                            [
+                                "arn:aws:apigateway:",
+                                {"Ref": "AWS::Region"},
+                                ":lambda:path/2015-03-31/functions/",
+                                {
+                                    "Fn::GetAtt": [
+                                        "LambdaFunction",
+                                        "Arn"
+                                    ]
+                                },
+                                "/invocations"
+                            ]
+                        ]
+                    },
+                    "IntegrationResponses": [{
+                        "StatusCode": 200,
+                        "ResponseTemplates": {
+                            "application/json": "$input.json('$')"
+                        },
+                        "ResponseParameters": {
+                            "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+                            "method.response.header.Access-Control-Allow-Methods": "'GET,POST,PUT,DELETE,OPTIONS'",
+                            "method.response.header.Access-Control-Allow-Origin": "'*'"
+                        }
+                    }]
+                },
+                "MethodResponses": [{
+                    "ResponseParameters": {
+                        "method.response.header.Access-Control-Allow-Headers": true,
+                        "method.response.header.Access-Control-Allow-Methods": true,
+                        "method.response.header.Access-Control-Allow-Origin": true
+                    },
+                    "StatusCode": "200"
+                }]
+            }
+        },
+        "methodNoteIdOPTIONS": {
+            "Description": "Enable CORS for resource.",
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+                "AuthorizationType": "NONE",
+                "RestApiId": {"Ref": "ApiGateway"},
+                "ResourceId": {
+                    "Ref": "resourceNoteId"
+                },
+                "HttpMethod": "OPTIONS",
+                "Integration": {
+                    "Type": "MOCK",
+                    "IntegrationResponses": [
+                        {
+                            "ResponseParameters": {
+                                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+                                "method.response.header.Access-Control-Allow-Methods": "'GET,POST,PUT,DELETE,OPTIONS'",
+                                "method.response.header.Access-Control-Allow-Origin": "'*'"
+                            },
+                            "ResponseTemplates": {
+                                "application/json": ""
+                            },
+                            "StatusCode": "200"
+                        }
+                    ]
+                },
+                "MethodResponses": [
+                    {
+                        "ResponseModels": {
+                            "application/json": "Empty"
+                        },
+                        "ResponseParameters": {
+                            "method.response.header.Access-Control-Allow-Headers": true,
+                            "method.response.header.Access-Control-Allow-Methods": true,
+                            "method.response.header.Access-Control-Allow-Origin": true
+                        },
+                        "StatusCode": "200"
+                    }
+                ]
             }
         },
         "ApiGatewayDeployment": {
             "Type": "AWS::ApiGateway::Deployment",
+            "DependsOn": ["methodNotesANY", "methodNoteIdANY"],
             "Properties": {
                 "RestApiId": {
                     "Ref": "ApiGateway"
@@ -272,6 +405,7 @@
             }
         }
     },
+
     "Outputs": {
         "ApiGatewayProdInvokeURL": {
             "Value": {

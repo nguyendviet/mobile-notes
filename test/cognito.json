@@ -1,6 +1,6 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "This template creates AWS Cognito UserPool, UserPoolClient and IdentityPool. Version: 1.0.2",
+    "Description": "This template creates AWS Cognito UserPool and UserPoolClient. Version: 1.0.2",
  
     "Parameters" : {
         "CognitoUserPoolName": {
@@ -87,158 +87,23 @@
                     "Ref": "UserPool"
                 }
             }
-        },
-        "IdentityPool": {
-            "Type" : "AWS::Cognito::IdentityPool",
-            "DependsOn": "UserPoolClient",
-            "Properties" : {
-                "AllowUnauthenticatedIdentities" : false,
-                "CognitoIdentityProviders": [
-                    {
-                        "ClientId": {
-                            "Ref": "UserPoolClient"
-                        },
-                        "ProviderName": {
-                            "Fn::GetAtt": [
-                                "UserPool",
-                                "ProviderName"
-                            ]
-                        }
-                    }
-                ],
-                "IdentityPoolName": {
-                    "Fn::Sub": "${CognitoUserPoolName}IdentityPool"
-                }
-            }
-        },
-        "CognitoAuthRole": {
-            "Type": "AWS::IAM::Role",
-            "Properties": {
-                "AssumeRolePolicyDocument": {
-                    "Version": "2012-10-17",
-                    "Statement": [
-                        {
-                            "Effect": "Allow",
-                            "Principal": {
-                                "Federated": "cognito-identity.amazonaws.com"
-                            },
-                            "Action": "sts:AssumeRoleWithWebIdentity",
-                            "Condition": {
-                                "StringEquals": {
-                                    "cognito-identity.amazonaws.com:aud": {
-                                        "Ref": "IdentityPool"
-                                    }
-                                },
-                                "ForAnyValue:StringLike": {
-                                    "cognito-identity.amazonaws.com:amr": "authenticated"
-                                }
-                            }
-                        }
-                    ]
-                },
-                "Policies": [
-                    {
-                        "PolicyName": "CognitoAuthPolicy",
-                        "PolicyDocument": {
-                            "Version": "2012-10-17",
-                            "Statement": [
-                                {
-                                    "Effect": "Allow",
-                                    "Action": [
-                                        "mobileanalytics:PutEvents",
-                                        "cognito-sync:*",
-                                        "cognito-identity:*"
-                                    ],
-                                    "Resource": [
-                                        "*"
-                                    ]
-                                }
-                            ]
-                        }
-                    }
-                ]
-            }
-        },
-        "CognitoUnauthRole": {
-            "Type": "AWS::IAM::Role",
-            "Properties": {
-                "AssumeRolePolicyDocument": {
-                    "Version": "2012-10-17",
-                    "Statement": [
-                        {
-                            "Effect": "Allow",
-                            "Principal": {
-                                "Federated": "cognito-identity.amazonaws.com"
-                            },
-                            "Action": "sts:AssumeRoleWithWebIdentity",
-                            "Condition": {
-                                "StringEquals": {
-                                    "cognito-identity.amazonaws.com:aud": {
-                                        "Ref": "IdentityPool"
-                                    }
-                                },
-                                "ForAnyValue:StringLike": {
-                                    "cognito-identity.amazonaws.com:amr": "unauthenticated"
-                                }
-                            }
-                        }
-                    ]
-                },
-                "Policies": [
-                    {
-                        "PolicyName": "CognitoUnauthPolicy",
-                        "PolicyDocument": {
-                            "Version": "2012-10-17",
-                            "Statement": [
-                                {
-                                    "Effect": "Allow",
-                                    "Action": [
-                                        "mobileanalytics:PutEvents",
-                                        "cognito-sync:*"
-                                    ],
-                                    "Resource": [
-                                        "*"
-                                    ]
-                                }
-                            ]
-                        }
-                    }
-                ]
-            }
-        },
-        "IdentityPoolRoles": {
-            "Type": "AWS::Cognito::IdentityPoolRoleAttachment",
-            "Properties": {
-                "IdentityPoolId": {
-                    "Ref": "IdentityPool"
-                },
-                "Roles": {
-                    "authenticated": {
-                        "Fn::GetAtt": [
-                            "CognitoAuthRole",
-                            "Arn"
-                        ]
-                    },
-                    "unauthenticated": {
-                        "Fn::GetAtt": [
-                            "CognitoUnauthRole",
-                            "Arn"
-                        ]
-                    }
-                }
-            }
         }
     },
 
     "Outputs": {
+        "UserPoolArn": {
+            "Value": {
+                "Fn::GetAtt" : [ "UserPool", "Arn" ]
+            }
+        },
         "UserPoolId": {
-            "Value": { "Ref": "UserPool" }
+            "Value": { "Ref" : "UserPool" }
         },
         "AppClientId": {
-            "Value": { "Ref": "UserPoolClient" }
+            "Value": { "Ref" : "UserPoolClient" }
         },
-        "IdentityPoolId" : {
-            "Value" : { "Ref": "IdentityPool" }
+        "UserPoolName": {
+            "Value": { "Ref" : "CognitoUserPoolName" }
         }
     }
 }

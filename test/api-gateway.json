@@ -362,6 +362,9 @@
                 "Fn::Sub": "https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/prod"
             },
             "Description": "API Gateway prod Invoke URL."
+        },
+        "ApiGatewayId": {
+            "Value": {"Ref": "ApiGateway"}
         }
     }
 }
