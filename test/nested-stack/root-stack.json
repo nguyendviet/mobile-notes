@@ -78,9 +78,6 @@
             "DependsOn": ["Cognito", "ApiGateway", "S3UploadBucket"],
             "Properties": {
                 "Parameters": {
-                    "UserPoolId": {
-                        "Fn::GetAtt": [ "Cognito", "Outputs.UserPoolId" ]
-                    },
                     "AppClientId": {
                         "Fn::GetAtt": [ "Cognito", "Outputs.AppClientId" ]
                     },
