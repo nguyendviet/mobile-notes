@@ -1,14 +1,11 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "This template creates AWS Cognito UserPool and its client.",
-
+    "Description": "This template creates AWS Cognito UserPool and UserPoolClient. Version: 1.0.2",
+ 
     "Parameters" : {
         "CognitoUserPoolName": {
             "Description": "Name of the Cognito user pool as a parameter passed into this template.",
-            "Type": "String",
-            "MinLength" : 1,
-            "MaxLength" : 255,
-            "AllowedPattern" : "^[a-zA-Z][-a-zA-Z0-9]*$"
+            "Type": "String"
         }
     },
 
@@ -76,12 +73,10 @@
         "UserPoolClient": {
             "Type": "AWS::Cognito::UserPoolClient",
             "Description": "App Client.",
+            "DependsOn": "UserPool",
             "Properties": {
                 "ClientName": {
-                    "Fn::Join" : ["-", [ 
-                        {"Ref": "CognitoUserPoolName"}, 
-                        "client" 
-                    ]]
+                    "Fn::Sub": "${CognitoUserPoolName}Client"
                 },
                 "ExplicitAuthFlows": [
                     "ADMIN_NO_SRP_AUTH"
@@ -92,35 +87,29 @@
                     "Ref": "UserPool"
                 }
             }
-        },
-        "IdentityPool": {
-            "Type" : "AWS::Cognito::IdentityPool",
-            "Properties" : {
-                "AllowUnauthenticatedIdentities" : false,
-                "CognitoIdentityProviders" : [{
-                    "ClientId" : {
-                        "Ref": "UserPoolClient"
-                    },
-                    "ProviderName" : {
-                        "Ref": "UserPool"
-                    },
-                    "ServerSideTokenCheck" : true
-                }],
-                "IdentityPoolName" : {
-                    "Fn::Join" : ["-", [ 
-                        {"Ref": "CognitoUserPoolName"}, 
-                        "identity-pool" 
-                    ]]
-                }
-            }
         }
     },
+
     "Outputs": {
-        "UserPoolARN": {
+        "UserPoolArn": {
+            "Value": {
+                "Fn::GetAtt" : [ "UserPool", "Arn" ]
+            }
+        },
+        "UserPoolId": {
+            "Value": { "Ref" : "UserPool" }
+        },
+        "AppClientId": {
+            "Value": { "Ref" : "UserPoolClient" }
+        },
+        "UserPoolName": {
+            "Value": { "Ref" : "CognitoUserPoolName" }
+        },
+        "ProviderName": {
             "Value": {
                 "Fn::GetAtt": [
                     "UserPool",
-                    "Arn"
+                    "ProviderName"
                 ]
             }
         }

@@ -104,6 +104,14 @@
         },
         "UserPoolName": {
             "Value": { "Ref" : "CognitoUserPoolName" }
+        },
+        "ProviderName": {
+            "Value": {
+                "Fn::GetAtt": [
+                    "UserPool",
+                    "ProviderName"
+                ]
+            }
         }
     }
 }

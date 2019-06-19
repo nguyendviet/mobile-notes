@@ -71,34 +71,18 @@
                             "Action": [
                                 "s3:*"
                             ],
-                            "Resource": [{
-                                "Fn::Join" : ["",
-                                    [
-                                        "arn:aws:s3:::",
-                                        {
-                                            "Ref": "UploadBucketName"
-                                        },
-                                        "/${cognito-identity.amazonaws.com:sub}/*/*/*"
-                                    ]
-                                ]
-                            }]
+                            "Resource": [
+                                "arn:aws:s3:::mobile-notes-uploads/private/${cognito-identity.amazonaws.com:sub}/*"
+                            ]
                         },
                         {
                             "Effect": "Allow",
                             "Action": [
                                 "execute-api:Invoke"
                             ],
-                            "Resource": [{
-                                "Fn::Join" : ["",
-                                    [
-                                        "arn:aws:execute-api:${AWS::Region}:*:",
-                                        {
-                                            "Ref": "ApiGatewayId"
-                                        },
-                                        "/*/*/*"
-                                    ]
-                                ]
-                            }]
+                            "Resource": [
+                                "arn:aws:execute-api:us-east-1:*:7oa6taac7i/*/*/*"
+                            ]
                         }
                     ]
                 },
