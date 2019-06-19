@@ -57,32 +57,22 @@
                     "Statement": [
                         {
                             "Effect": "Allow",
+                            "Principal": {
+                                "Federated": "cognito-identity.amazonaws.com"
+                            },
                             "Action": [
-                                "mobileanalytics:PutEvents",
-                                "cognito-sync:*",
-                                "cognito-identity:*"
+                                "sts:AssumeRoleWithWebIdentity"
                             ],
-                            "Resource": [
-                                "*"
-                            ]
-                        },
-                        {
-                            "Effect": "Allow",
-                            "Action": [
-                                "s3:*"
-                            ],
-                            "Resource": [
-                                "arn:aws:s3:::mobile-notes-uploads/private/${cognito-identity.amazonaws.com:sub}/*"
-                            ]
-                        },
-                        {
-                            "Effect": "Allow",
-                            "Action": [
-                                "execute-api:Invoke"
-                            ],
-                            "Resource": [
-                                "arn:aws:execute-api:us-east-1:*:jaoq9rbgx7/*/*/*"
-                            ]
+                            "Condition": {
+                                "StringEquals": {
+                                    "cognito-identity.amazonaws.com:aud": {
+                                        "Ref": "IdentityPool"
+                                    }
+                                },
+                                "ForAnyValue:StringLike": {
+                                    "cognito-identity.amazonaws.com:amr": "authenticated"
+                                }
+                            }
                         }
                     ]
                 },
@@ -102,6 +92,24 @@
                                     "Resource": [
                                         "*"
                                     ]
+                                },
+                                {
+                                    "Effect": "Allow",
+                                    "Action": [
+                                        "s3:*"
+                                    ],
+                                    "Resource": [
+                                        "arn:aws:s3:::mobile-notes-uploads/private/${cognito-identity.amazonaws.com:sub}/*"
+                                    ]
+                                },
+                                {
+                                    "Effect": "Allow",
+                                    "Action": [
+                                        "execute-api:Invoke"
+                                    ],
+                                    "Resource": [
+                                        "arn:aws:execute-api:us-east-1:*:jaoq9rbgx7/*/*/*"
+                                    ]
                                 }
                             ]
                         }
@@ -120,7 +128,9 @@
                             "Principal": {
                                 "Federated": "cognito-identity.amazonaws.com"
                             },
-                            "Action": "sts:AssumeRoleWithWebIdentity",
+                            "Action": [
+                                "sts:AssumeRoleWithWebIdentity"
+                            ],
                             "Condition": {
                                 "StringEquals": {
                                     "cognito-identity.amazonaws.com:aud": {
