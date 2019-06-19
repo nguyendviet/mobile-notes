@@ -78,7 +78,9 @@
                 },
                 "Policies": [
                     {
-                        "PolicyName": "CognitoAuthPolicy",
+                        "PolicyName": {
+                            "Fn::Sub": "${UserPoolName}CognitoAuthPolicy"
+                        },
                         "PolicyDocument": {
                             "Version": "2012-10-17",
                             "Statement": [
@@ -146,7 +148,9 @@
                 },
                 "Policies": [
                     {
-                        "PolicyName": "CognitoUnauthPolicy",
+                        "PolicyName": {
+                            "Fn::Sub": "${UserPoolName}CognitoUnauthPolicy"
+                        },
                         "PolicyDocument": {
                             "Version": "2012-10-17",
                             "Statement": [
@@ -191,6 +195,10 @@
     },
 
     "Outputs": {
-
+        "IdentityPoolId": {
+            "Value": {
+                "Ref": "IdentityPool"
+            }
+        }
     }
 }
