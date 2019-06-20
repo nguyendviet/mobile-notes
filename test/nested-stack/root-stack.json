@@ -74,7 +74,7 @@
         },
         "IdentityPool": {
             "Description": "Cognito Identity Pool. Must be created after User Pool and API Gateway.",
-            "Type": "AWS::Cognito::IdentityPool",
+            "Type": "AWS::CloudFormation::Stack",
             "DependsOn": ["Cognito", "ApiGateway", "S3UploadBucket"],
             "Properties": {
                 "Parameters": {
