@@ -1,6 +1,6 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "This template uses nested stacks to provision the notes app. Version: 1.0.3",
+    "Description": "This template uses nested stacks to provision the notes app. Version: 1.0.4",
     
     "Resources": {
         "DynamoDBTable": {
@@ -100,6 +100,8 @@
     },
 
     "Outputs": {
-
+        "WebsiteUrl": {
+            "Fn::GetAtt": [ "S3WebsiteReact", "Outputs.WebsiteURL" ]
+        }
     }
 }
