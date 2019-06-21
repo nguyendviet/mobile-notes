@@ -225,7 +225,7 @@
                     "IntegrationHttpMethod": "ANY",
                     "Uri": {"Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFunction.Arn}/invocations"},
                     "IntegrationResponses": [{
-                        "StatusCode": 204
+                        "StatusCode": 200
                     }]
                 },
                 "MethodResponses": [{
@@ -296,7 +296,7 @@
                     "IntegrationHttpMethod": "ANY",
                     "Uri": {"Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFunction.Arn}/invocations"},
                     "IntegrationResponses": [{
-                        "StatusCode": 204
+                        "StatusCode": 200
                     }]
                 },
                 "MethodResponses": [{
@@ -336,6 +336,9 @@
                     "RequestTemplates": {
                         "application/json": "{\"statusCode\": 200}"
                     }
+                },
+                "RequestParameters": {
+                    "method.request.header.Access-Control-Allow-Origin": "'*'"
                 },
                 "MethodResponses": [
                     {
