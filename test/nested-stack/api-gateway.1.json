@@ -1,6 +1,6 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "This template creates API Gateway and Lambda function. Version: 1.0.5. Testing.",
+    "Description": "This template creates API Gateway and Lambda function. Version: 1.0.4",
 
     "Parameters" : {
         "ApiGatewayName": {
@@ -200,6 +200,16 @@
                 "RestApiId" : {"Ref": "ApiGateway"}
             }
         },
+        "resourceNoteId": {
+            "Type" : "AWS::ApiGateway::Resource",
+            "Properties" : {
+                "ParentId" : {
+                    "Ref": "resourceNotes"
+                },
+                "PathPart" : "{noteid}",
+                "RestApiId" : {"Ref": "ApiGateway"}
+            }
+        },
         "methodNotesANY": {
             "Type": "AWS::ApiGateway::Method",
             "Properties": {
@@ -212,25 +222,18 @@
                 "HttpMethod": "ANY",
                 "Integration": {
                     "Type": "AWS_PROXY",
-                    "IntegrationHttpMethod": "GET",
+                    "IntegrationHttpMethod": "ANY",
                     "Uri": {"Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFunction.Arn}/invocations"},
                     "IntegrationResponses": [{
-                        "StatusCode": "200",
-                        "ResponseParameters": {
-                            "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
-                            "method.response.header.Access-Control-Allow-Methods": "'GET,POST,PUT,DELETE,OPTIONS'",
-                            "method.response.header.Access-Control-Allow-Origin": "'*'"
-                        }
+                        "StatusCode": "200"
                     }]
                 },
+                "RequestParameters": {
+                    "method.request.header.Access-Control-Allow-Origin": "'*'"
+                },
                 "MethodResponses": [{
-                    "ResponseParameters": {
-                        "method.response.header.Access-Control-Allow-Headers": true,
-                        "method.response.header.Access-Control-Allow-Methods": true,
-                        "method.response.header.Access-Control-Allow-Origin": true
-                    },
                     "ResponseModels": {
-                        "application/json": "Empty"
+                    "application/json": "Empty"
                     },
                     "StatusCode": "200"
                 }]
@@ -281,9 +284,83 @@
                 ]
             }
         },
+        "methodNoteIdANY": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+                "AuthorizationType": "COGNITO_USER_POOLS",
+                "AuthorizerId": {"Ref": "GatewayAuthorizer"},
+                "RestApiId": {"Ref": "ApiGateway"},
+                "ResourceId": {
+                    "Ref": "resourceNoteId"
+                },
+                "HttpMethod": "ANY",
+                "Integration": {
+                    "Type": "AWS_PROXY",
+                    "IntegrationHttpMethod": "ANY",
+                    "Uri": {"Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFunction.Arn}/invocations"},
+                    "IntegrationResponses": [{
+                        "StatusCode": "200"
+                    }]
+                },
+                "RequestParameters": {
+                    "method.request.header.Access-Control-Allow-Origin": "'*'"
+                },
+                "MethodResponses": [{
+                    "ResponseModels": {
+                    "application/json": "Empty"
+                    },
+                    "StatusCode": "200"
+                }]
+            }
+        },
+        "methodNoteIdOPTIONS": {
+            "Description": "Enable CORS for resource.",
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+                "AuthorizationType": "NONE",
+                "RestApiId": {"Ref": "ApiGateway"},
+                "ResourceId": {
+                    "Ref": "resourceNoteId"
+                },
+                "HttpMethod": "OPTIONS",
+                "Integration": {
+                    "Type": "MOCK",
+                    "IntegrationResponses": [
+                        {
+                            "ResponseParameters": {
+                                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+                                "method.response.header.Access-Control-Allow-Methods": "'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT'",
+                                "method.response.header.Access-Control-Allow-Origin": "'*'"
+                            },
+                            "ResponseTemplates": {
+                                "application/json": ""
+                            },
+                            "StatusCode": "200"
+                        }
+                    ],
+                    "PassthroughBehavior": "WHEN_NO_MATCH",
+                    "RequestTemplates": {
+                        "application/json": "{\"statusCode\": 200}"
+                    }
+                },
+                "MethodResponses": [
+                    {
+                        "ResponseModels": {
+                            "application/json": "Empty"
+                        },
+                        "ResponseParameters": {
+                            "method.response.header.Access-Control-Allow-Headers": false,
+                            "method.response.header.Access-Control-Allow-Methods": false,
+                            "method.response.header.Access-Control-Allow-Origin": false
+                        },
+                        "StatusCode": "200"
+                    }
+                ]
+            }
+        },
         "ApiGatewayDeployment": {
             "Type": "AWS::ApiGateway::Deployment",
-            "DependsOn": "methodNotesANY",
+            "DependsOn": ["methodNotesANY", "methodNoteIdANY"],
             "Properties": {
                 "RestApiId": {
                     "Ref": "ApiGateway"
