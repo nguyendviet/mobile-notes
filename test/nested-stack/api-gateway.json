@@ -260,9 +260,6 @@
                         "StatusCode": "200"
                     }]
                 },
-                "RequestParameters": {
-                    "method.request.header.Access-Control-Allow-Origin": "'*'"
-                },
                 "MethodResponses": [{
                     "ResponseModels": {
                         "application/json": "Empty"
@@ -341,9 +338,6 @@
                     "IntegrationResponses": [{
                         "StatusCode": "200"
                     }]
-                },
-                "RequestParameters": {
-                    "method.request.header.Access-Control-Allow-Origin": "'*'"
                 },
                 "MethodResponses": [{
                     "ResponseModels": {
