@@ -272,6 +272,7 @@
             "Description": "Enable CORS for resource.",
             "Type": "AWS::ApiGateway::Method",
             "Properties": {
+                "ApiKeyRequired" : false,
                 "AuthorizationType": "NONE",
                 "RestApiId": {
                     "Ref": "ApiGateway"
