@@ -61,10 +61,16 @@
                 "Policies": [
                     {
                         "PolicyName": {
-                            "Fn::Join": ["-", [
-                                {"Ref": "ApiGatewayName"}, 
-                                "lambda-policy"
-                            ]]
+                            "Fn::Join": [
+                                "-", 
+                                [
+                                    {
+                                        "Ref": 
+                                        "ApiGatewayName"
+                                    }, 
+                                    "lambda-policy"
+                                ]
+                            ]
                         },
                         "PolicyDocument": {
                             "Version": "2012-10-17",
@@ -81,7 +87,11 @@
                                     ],
                                     "Effect": "Allow",
                                     "Resource": [
-                                        { "Fn::ImportValue": {"Fn::Sub": "${DynamoDBStack}-DDBTableARN"}}
+                                        { 
+                                            "Fn::ImportValue": {
+                                                "Fn::Sub": "${DynamoDBStack}-DDBTableARN"
+                                            }
+                                        }
                                     ]
                                 }
                             ]
@@ -104,7 +114,9 @@
                 "Environment": {
                     "Variables": {
                         "TABLE_NAME": {
-                            "Fn::ImportValue": {"Fn::Sub": "${DynamoDBStack}-DDBTableName"}
+                            "Fn::ImportValue": {
+                                "Fn::Sub": "${DynamoDBStack}-DDBTableName"
+                            }
                         }
                     }
                 },
@@ -141,10 +153,15 @@
                 "Policies": [
                     {
                         "PolicyName": {
-                            "Fn::Join": ["-", [
-                                {"Ref": "ApiGatewayName"}, 
-                                "api-gateway-policy"
-                            ]]
+                            "Fn::Join": [
+                                "-", 
+                                [
+                                    {
+                                        "Ref": "ApiGatewayName"
+                                    }, 
+                                    "api-gateway-policy"
+                                ]
+                            ]
                         },
                         "PolicyDocument": {
                             "Version": "2012-10-17",
@@ -173,7 +190,9 @@
             "Type" : "AWS::ApiGateway::Authorizer",
             "Properties" : {
                 "AuthorizerCredentials" : {
-                    "Fn::GetAtt": ["ApiGatewayRole", "Arn"]
+                    "Fn::GetAtt": [
+                        "ApiGatewayRole", "Arn"
+                    ]
                 },
                 "IdentitySource" : "method.request.header.Authorization",
                 "Name" : {
@@ -194,10 +213,15 @@
             "Type" : "AWS::ApiGateway::Resource",
             "Properties" : {
                 "ParentId" : {
-                    "Fn::GetAtt": ["ApiGateway", "RootResourceId"]
+                    "Fn::GetAtt": [
+                        "ApiGateway", 
+                        "RootResourceId"
+                    ]
                 },
                 "PathPart" : "notes",
-                "RestApiId" : {"Ref": "ApiGateway"}
+                "RestApiId" : {
+                    "Ref": "ApiGateway"
+                }
             }
         },
         "resourceNoteId": {
@@ -207,15 +231,21 @@
                     "Ref": "resourceNotes"
                 },
                 "PathPart" : "{noteid}",
-                "RestApiId" : {"Ref": "ApiGateway"}
+                "RestApiId" : {
+                    "Ref": "ApiGateway"
+                }
             }
         },
         "methodNotesANY": {
             "Type": "AWS::ApiGateway::Method",
             "Properties": {
                 "AuthorizationType": "COGNITO_USER_POOLS",
-                "AuthorizerId": {"Ref": "GatewayAuthorizer"},
-                "RestApiId": {"Ref": "ApiGateway"},
+                "AuthorizerId": {
+                    "Ref": "GatewayAuthorizer"
+                },
+                "RestApiId": {
+                    "Ref": "ApiGateway"
+                },
                 "ResourceId": {
                     "Ref": "resourceNotes"
                 },
@@ -223,7 +253,9 @@
                 "Integration": {
                     "Type": "AWS_PROXY",
                     "IntegrationHttpMethod": "ANY",
-                    "Uri": {"Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFunction.Arn}/invocations"},
+                    "Uri": {
+                        "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFunction.Arn}/invocations"
+                    },
                     "IntegrationResponses": [{
                         "StatusCode": "200"
                     }]
@@ -233,7 +265,7 @@
                 },
                 "MethodResponses": [{
                     "ResponseModels": {
-                    "application/json": "Empty"
+                        "application/json": "Empty"
                     },
                     "StatusCode": "200"
                 }]
@@ -244,7 +276,9 @@
             "Type": "AWS::ApiGateway::Method",
             "Properties": {
                 "AuthorizationType": "NONE",
-                "RestApiId": {"Ref": "ApiGateway"},
+                "RestApiId": {
+                    "Ref": "ApiGateway"
+                },
                 "ResourceId": {
                     "Ref": "resourceNotes"
                 },
@@ -288,8 +322,12 @@
             "Type": "AWS::ApiGateway::Method",
             "Properties": {
                 "AuthorizationType": "COGNITO_USER_POOLS",
-                "AuthorizerId": {"Ref": "GatewayAuthorizer"},
-                "RestApiId": {"Ref": "ApiGateway"},
+                "AuthorizerId": {
+                    "Ref": "GatewayAuthorizer"
+                },
+                "RestApiId": {
+                    "Ref": "ApiGateway"
+                },
                 "ResourceId": {
                     "Ref": "resourceNoteId"
                 },
@@ -297,7 +335,9 @@
                 "Integration": {
                     "Type": "AWS_PROXY",
                     "IntegrationHttpMethod": "ANY",
-                    "Uri": {"Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFunction.Arn}/invocations"},
+                    "Uri": {
+                        "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFunction.Arn}/invocations"
+                    },
                     "IntegrationResponses": [{
                         "StatusCode": "200"
                     }]
@@ -307,7 +347,7 @@
                 },
                 "MethodResponses": [{
                     "ResponseModels": {
-                    "application/json": "Empty"
+                        "application/json": "Empty"
                     },
                     "StatusCode": "200"
                 }]
@@ -318,7 +358,9 @@
             "Type": "AWS::ApiGateway::Method",
             "Properties": {
                 "AuthorizationType": "NONE",
-                "RestApiId": {"Ref": "ApiGateway"},
+                "RestApiId": {
+                    "Ref": "ApiGateway"
+                },
                 "ResourceId": {
                     "Ref": "resourceNoteId"
                 },
@@ -360,7 +402,10 @@
         },
         "ApiGatewayDeployment": {
             "Type": "AWS::ApiGateway::Deployment",
-            "DependsOn": ["methodNotesANY", "methodNoteIdANY"],
+            "DependsOn": [
+                "methodNotesANY", 
+                "methodNoteIdANY"
+            ],
             "Properties": {
                 "RestApiId": {
                     "Ref": "ApiGateway"
@@ -378,7 +423,9 @@
             "Description": "API Gateway prod Invoke URL."
         },
         "ApiGatewayId": {
-            "Value": {"Ref": "ApiGateway"}
+            "Value": {
+                "Ref": "ApiGateway"
+            }
         }
     }
 }
