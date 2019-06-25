@@ -272,7 +272,6 @@
             "Description": "Enable CORS for resource.",
             "Type": "AWS::ApiGateway::Method",
             "Properties": {
-                "ApiKeyRequired" : false,
                 "AuthorizationType": "NONE",
                 "RestApiId": {
                     "Ref": "ApiGateway"
@@ -286,7 +285,7 @@
                     "IntegrationResponses": [
                         {
                             "ResponseParameters": {
-                                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+                                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'",
                                 "method.response.header.Access-Control-Allow-Methods": "'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT'",
                                 "method.response.header.Access-Control-Allow-Origin": "'*'"
                             },
