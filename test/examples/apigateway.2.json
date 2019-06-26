@@ -1,6 +1,6 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "My API Gateway and Lambda function. Source: https://gist.github.com/magnetikonline/c314952045eee8e8375b82bc7ec68e88",
+    "Description": "My API Gateway and Lambda function. This template has issue in SourceArn of lambdaApiGatewayInvoke. Source: https://gist.github.com/magnetikonline/c314952045eee8e8375b82bc7ec68e88",
     "Parameters": {
         "apiGatewayStageName": {
             "Type": "String",

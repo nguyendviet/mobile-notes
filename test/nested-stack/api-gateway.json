@@ -198,10 +198,7 @@
                 },
                 "Principal": "apigateway.amazonaws.com",
                 "SourceArn": {
-                    "Fn::GetAtt": [
-                        "ApiGateway",
-                        "Arn"
-                    ]
+                    "Fn::Sub": "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGateway}/prod/*/GET"
                 }
             }
         },
