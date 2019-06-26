@@ -186,6 +186,25 @@
                 ]
             }
         },
+        "LambdaInvokePermission": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+                "Action": "lambda:InvokeFunction",
+                "FunctionName": {
+                    "Fn::GetAtt": [
+                        "lambdaFunction",
+                        "Arn"
+                    ]
+                },
+                "Principal": "apigateway.amazonaws.com",
+                "SourceArn": {
+                    "Fn::GetAtt": [
+                        "ApiGateway",
+                        "Arn"
+                    ]
+                }
+            }
+        },
         "GatewayAuthorizer": {
             "Type" : "AWS::ApiGateway::Authorizer",
             "Properties" : {
