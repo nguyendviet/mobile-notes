@@ -1,0 +1,206 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "This template creates AWS Cognito IdentityPool. Version: 1.0.2",
+ 
+    "Parameters" : {
+        "AppClientId": {
+            "Description": "ID of the App Client of the Cognito User Pool passed into this stack.",
+            "Type": "String"
+        },
+        "UserPoolProviderName": {
+            "Description": "Cognito User Pool Provider name passed into this stack.",
+            "Type": "String"
+        },
+        "UserPoolName": {
+            "Description": "Cognito User Pool Name passed into this stack.",
+            "Type": "String"
+        },
+        "UploadBucketName": {
+            "Description": "Name of the bucket that is used to upload files to.",
+            "Type": "String"
+        },
+        "ApiGatewayId": {
+            "Description": "ID of the API Gateway created for the stack.",
+            "Type": "String"
+        }
+    },
+
+    "Resources": {
+        "IdentityPool": {
+            "Type" : "AWS::Cognito::IdentityPool",
+            "Properties" : {
+                "AllowUnauthenticatedIdentities" : false,
+                "CognitoIdentityProviders": [
+                    {
+                        "ClientId": {
+                            "Ref": "AppClientId"
+                        },
+                        "ProviderName": {
+                            "Ref": "UserPoolProviderName"
+                        }
+                    }
+                ],
+                "IdentityPoolName": {
+                    "Fn::Sub": "${UserPoolName}IdentityPool"
+                }
+            }
+        },
+        "CognitoAuthRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Federated": "cognito-identity.amazonaws.com"
+                            },
+                            "Action": [
+                                "sts:AssumeRoleWithWebIdentity"
+                            ],
+                            "Condition": {
+                                "StringEquals": {
+                                    "cognito-identity.amazonaws.com:aud": {
+                                        "Ref": "IdentityPool"
+                                    }
+                                },
+                                "ForAnyValue:StringLike": {
+                                    "cognito-identity.amazonaws.com:amr": "authenticated"
+                                }
+                            }
+                        }
+                    ]
+                },
+                "Policies": [
+                    {
+                        "PolicyName": {
+                            "Fn::Sub": "${UserPoolName}CognitoAuthPolicy"
+                        },
+                        "PolicyDocument": {
+                            "Version": "2012-10-17",
+                            "Statement": [
+                                {
+                                    "Effect": "Allow",
+                                    "Action": [
+                                        "mobileanalytics:PutEvents",
+                                        "cognito-sync:*",
+                                        "cognito-identity:*"
+                                    ],
+                                    "Resource": [
+                                        "*"
+                                    ]
+                                },
+                                {
+                                    "Effect": "Allow",
+                                    "Action": [
+                                        "s3:*"
+                                    ],
+                                    "Resource": [{
+                                        "Fn::Join":["/",
+                                            [
+                                                {"Fn::Sub": "arn:aws:s3:::${UploadBucketName}"}, 
+                                                "${cognito-identity.amazonaws.com:sub}",
+                                                "*"
+                                            ]
+                                        ]
+                                    }]
+                                },
+                                {
+                                    "Effect": "Allow",
+                                    "Action": [
+                                        "execute-api:Invoke"
+                                    ],
+                                    "Resource": [{
+                                        "Fn::Sub": "arn:aws:execute-api:us-east-1:*:${ApiGatewayId}/*/*/*"
+                                    }]
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        "CognitoUnauthRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Federated": "cognito-identity.amazonaws.com"
+                            },
+                            "Action": [
+                                "sts:AssumeRoleWithWebIdentity"
+                            ],
+                            "Condition": {
+                                "StringEquals": {
+                                    "cognito-identity.amazonaws.com:aud": {
+                                        "Ref": "IdentityPool"
+                                    }
+                                },
+                                "ForAnyValue:StringLike": {
+                                    "cognito-identity.amazonaws.com:amr": "unauthenticated"
+                                }
+                            }
+                        }
+                    ]
+                },
+                "Policies": [
+                    {
+                        "PolicyName": {
+                            "Fn::Sub": "${UserPoolName}CognitoUnauthPolicy"
+                        },
+                        "PolicyDocument": {
+                            "Version": "2012-10-17",
+                            "Statement": [
+                                {
+                                    "Effect": "Allow",
+                                    "Action": [
+                                        "mobileanalytics:PutEvents",
+                                        "cognito-sync:*"
+                                    ],
+                                    "Resource": [
+                                        "*"
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        "IdentityPoolRoles": {
+            "Type": "AWS::Cognito::IdentityPoolRoleAttachment",
+            "Properties": {
+                "IdentityPoolId": {
+                    "Ref": "IdentityPool"
+                },
+                "Roles": {
+                    "authenticated": {
+                        "Fn::GetAtt": [
+                            "CognitoAuthRole",
+                            "Arn"
+                        ]
+                    },
+                    "unauthenticated": {
+                        "Fn::GetAtt": [
+                            "CognitoUnauthRole",
+                            "Arn"
+                        ]
+                    }
+                }
+            }
+        }
+    },
+
+    "Outputs": {
+        "IdentityPoolId": {
+            "Value": {
+                "Ref": "IdentityPool"
+            }
+        }
+    }
+}
