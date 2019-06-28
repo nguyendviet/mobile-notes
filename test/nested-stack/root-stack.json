@@ -101,7 +101,40 @@
 
     "Outputs": {
         "WebsiteUrl": {
-            "Fn::GetAtt": [ "S3WebsiteReact", "Outputs.WebsiteURL" ]
+            "Value": {
+                "Fn::GetAtt": [ "S3WebsiteReact", "Outputs.WebsiteURL" ]
+            },
+            "Description": "The URL of the S3 bucket that hosts the front-end."
+        },
+        "S3WebsiteBucket": {
+            "Value": {
+                "Fn::GetAtt": [ "S3WebsiteReact", "Outputs.BucketName" ]
+            },
+            "Description": "The name of the S3 bucket that hosts the front-end."
+        },
+        "ApiInvokeUrl": {
+            "Value": {
+                "Fn::GetAtt": [ "ApiGateway", "Outputs.ApiGatewayProdInvokeURL" ]
+            },
+            "Description": "The invoke URL of the API Gateway."
+        },
+        "CognitoUserPoolId": {
+            "Value": {
+                "Fn::GetAtt": [ "Cognito", "Outputs.UserPoolId" ]
+            },
+            "Description": "The User Pool ID."
+        },
+        "CognitoAppClientId": {
+            "Value": {
+                "Fn::GetAtt": [ "Cognito", "Outputs.AppClientId" ]
+            },
+            "Description": "The App Client ID of the User Pool ID."
+        },
+        "CognitoIdentityPoolId": {
+            "Value": {
+                "Fn::GetAtt": [ "IdentityPool", "Outputs.IdentityPoolId" ]
+            },
+            "Description": "The Identity Pool ID."
         }
     }
 }

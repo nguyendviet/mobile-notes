@@ -66,3 +66,4 @@ config.js
 aws-variables.js
 aws-variables*
 /client/build
+# /test/nested-stack

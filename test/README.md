@@ -1,1 +1,0 @@
-Check [project](https://github.com/nguyendviet/mobile-notes/projects/1) for progress and notes.
