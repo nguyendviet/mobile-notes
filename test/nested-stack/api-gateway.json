@@ -367,7 +367,7 @@
                 "HttpMethod": "ANY",
                 "Integration": {
                     "Type": "AWS_PROXY",
-                    "IntegrationHttpMethod": "ANY",
+                    "IntegrationHttpMethod": "POST",
                     "Uri": {
                         "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFunction.Arn}/invocations"
                     },
