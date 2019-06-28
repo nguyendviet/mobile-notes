@@ -186,22 +186,6 @@
                 ]
             }
         },
-        "LambdaInvokePermission": {
-            "Type": "AWS::Lambda::Permission",
-            "Properties": {
-                "Action": "lambda:InvokeFunction",
-                "FunctionName": {
-                    "Fn::GetAtt": [
-                        "LambdaFunction",
-                        "Arn"
-                    ]
-                },
-                "Principal": "apigateway.amazonaws.com",
-                "SourceArn": {
-                    "Fn::Sub": "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGateway}/prod/*/GET"
-                }
-            }
-        },
         "GatewayAuthorizer": {
             "Type" : "AWS::ApiGateway::Authorizer",
             "Properties" : {
@@ -279,6 +263,9 @@
                 "MethodResponses": [{
                     "ResponseModels": {
                         "application/json": "Empty"
+                    },
+                    "ResponseParameters": {
+                        "method.response.header.Access-Control-Allow-Origin": true
                     },
                     "StatusCode": "200"
                 }]
