@@ -131,12 +131,46 @@
                 "Name": {
                     "Ref": "ApiGatewayName"
                 },
-                "Description": "A description",
                 "FailOnWarnings": true
+            }
+        },
+        "LambdaPermission": {
+            "Type": "AWS::Lambda::Permission",
+            "Description": "Permission for API GateWay to invoke Lambda.",
+            "Properties": {
+                "Action": "lambda:invokeFunction",
+                "FunctionName": {
+                    "Fn::GetAtt": [
+                        "LambdaFunction",
+                        "Arn"
+                    ]
+                },
+                "Principal": "apigateway.amazonaws.com",
+                "SourceArn": {
+                    "Fn::Join": [
+                        "",
+                        [
+                            "arn:aws:execute-api:",
+                            {
+                                "Ref": "AWS::Region"
+                            },
+                            ":",
+                            {
+                                "Ref": "AWS::AccountId"
+                            },
+                            ":",
+                            {
+                                "Ref": "ApiGateway"
+                            },
+                            "/*"
+                        ]
+                    ]
+                }
             }
         },
         "ApiGatewayRole": {
             "Type": "AWS::IAM::Role",
+            "Description": "Role for API Authorizer.",
             "Properties": {
                 "AssumeRolePolicyDocument": {
                     "Version": "2012-10-17",
@@ -238,6 +272,7 @@
         },
         "methodNotesANY": {
             "Type": "AWS::ApiGateway::Method",
+            "DependsOn": "LambdaPermission",
             "Properties": {
                 "AuthorizationType": "COGNITO_USER_POOLS",
                 "AuthorizerId": {
@@ -269,8 +304,8 @@
             }
         },
         "methodNotesOPTIONS": {
-            "Description": "Enable CORS for resource.",
             "Type": "AWS::ApiGateway::Method",
+            "DependsOn": "LambdaPermission",
             "Properties": {
                 "AuthorizationType": "NONE",
                 "RestApiId": {
@@ -317,6 +352,7 @@
         },
         "methodNoteIdANY": {
             "Type": "AWS::ApiGateway::Method",
+            "DependsOn": "LambdaPermission",
             "Properties": {
                 "AuthorizationType": "COGNITO_USER_POOLS",
                 "AuthorizerId": {
@@ -348,8 +384,8 @@
             }
         },
         "methodNoteIdOPTIONS": {
-            "Description": "Enable CORS for resource.",
             "Type": "AWS::ApiGateway::Method",
+            "DependsOn": "LambdaPermission",
             "Properties": {
                 "AuthorizationType": "NONE",
                 "RestApiId": {
