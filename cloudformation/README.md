@@ -2,6 +2,8 @@
 
 Guide to deploy CloudFormation nested stack to create the full serverless mobile notes app that was described [here](../README.md).
 
+If you want to go deeper into the stacks, go [here](../docs/full-explanation.md).
+
 ## Step 1: Set up your template bucket
 After cloning this repository:
 - Create a bucket that will contain all the templates (`.json` files). Don't make this bucket public unless you want to share your templates.
@@ -9,9 +11,9 @@ After cloning this repository:
 - I recommend you turn on Version Control and Server access logging for this bucket if you plan to keep using this bucket for more templates in the future.
 - Upload all template (`.json` files) in this folder `./cloudformation`, except `root-stack.json` because you don't need it in the bucket.
 
-### :question:
+:question:
 1. Wait. Why would I use nested stack? It seems like more work. => [See answer](../docs/why-nested-stack.md).
-1. What about cross stack references? => Well, please [see answer](../docs/why-cross-stack.md).
+1. What about cross stack references? => [See answer](../docs/why-cross-stack.md).
 
 
 ## Step 2: Deploy the templates

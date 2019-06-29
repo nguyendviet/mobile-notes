@@ -61,7 +61,7 @@ Resource1 template:
 }
 ```
 
-You pass the values you need inside the mother (`root-stack`) template:
+You pass the values you need inside the mother (`root-stack`) template. In this case, from Resource1 to Resource2:
 ```json
 "Resources": {
     "Resource1": {
