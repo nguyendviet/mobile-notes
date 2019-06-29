@@ -43,6 +43,25 @@ This app is a combination of the back-end code from AWS Blog [AWS Mobile App Bac
     ```
 1. You should see the main page of the app that looks like the one on Serverless-Stack.com.
 
+## Debug
+- If you run `yarn install` and encounter these errors:
+```bash
+... blah blah blah
+gyp ERR! node -v v12.4.0
+gyp ERR! node-gyp -v v5.0.1
+gyp ERR! not ok 
+...
+node-pre-gyp ERR! node -v v12.4.0
+node-pre-gyp ERR! node-pre-gyp -v v0.10.3
+node-pre-gyp ERR! not ok 
+```
+This is a known conflict between `node v12.*` and [grpc](https://www.npmjs.com/package/grpc).
+Run this command:
+```
+$ yarn upgrade node-gyp@latest node-pre-gyp@latest
+``` 
+Or you can downgrade your Node.js to version 10.*
+
 ## Test
 
 - Since I use the front-end code from Serverless-Stack.com, I don't test it, but you should test your front-end code using frameworks like [nightmare](https://www.npmjs.com/package/nightmare).
