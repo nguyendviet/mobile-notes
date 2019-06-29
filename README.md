@@ -100,7 +100,7 @@ The differences between my code and the code from [AWS Blog](https://aws.amazon.
     });
     ```
 - There's a lot more from Serverless-Stack.com like Automating Serverless deployments and Code Splitting in Create React App, you should definitely check it out.
-- In the (near) future, I'm going to  use AWS CloudFormation (and perhaps Terraform) to provision the infrastructure instead of the tools that Serverless-Stack.com uses.
+- In the (near) future, I'm going to  use AWS CloudFormation (and perhaps Terraform) to provision the infrastructure instead of the tools that Serverless-Stack.com uses. *Update 28 June 2019*: So, the future is now. See how to provision the whole app with CloudFormation [here](./cloudformation/README.md).
 
 ## Author(s)
 

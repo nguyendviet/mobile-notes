@@ -5,4 +5,4 @@ From [AWS docs](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/u
 ...
 Using nested stacks to declare common components is considered a best practice.
 
-If you find yourself creating the same resouces over and over again, or similar resources tied together (like I do), then using "component templates" makes a lot of sense.
+If you find yourself creating the same resources over and over again, or similar resources tied together (like I do), then using "component templates" makes a lot of sense.

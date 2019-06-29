@@ -1,13 +1,13 @@
 # CloudFormation templates
 
-Guide to deploy CloudFormation nested stack to create the full serverless mobile notes app described [here](../README.md).
+Guide to deploy CloudFormation nested stack to create the full serverless mobile notes app that was described [here](../README.md).
 
 ## Step 1: Set up your template bucket
-- After cloning this repository:
+After cloning this repository:
 - Create a bucket that will contain all the templates (`.json` files). Don't make this bucket public unless you want to share your templates.
 - You can use a CloudFormation template, the CLI or the Console to create this bucket.
 - I recommend you turn on Version Control and Server access logging for this bucket if you plan to keep using this bucket for more templates in the future.
-- Upload all template (`.json` files) in this folder, except `root-stack.json` because you don't need it in the bucket.
+- Upload all template (`.json` files) in this folder `./cloudformation`, except `root-stack.json` because you don't need it in the bucket.
 
 ### :question:
 1. Wait. Why would I use nested stack? It seems like more work. => [See answer](../docs/why-nested-stack.md).
@@ -71,7 +71,7 @@ $ yarn start
 
 ## Step 5: Try the app online
 - Go to YOUR-APP-URL that you got from the Outputs of your root stack template. 
-- Now you can create another account or login (if you have already created one from your local host) and see the notes you've written (if you have done so) that are pulled from `DynamoDB`.
+- Now you can create another account or login (if you have already created one from your local host) and see your notes (if you have done so) pulled from `DynamoDB`.
 
 ## Step 6: Get better at it
 - Use [SAM](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html) to develop your Serverless app.
