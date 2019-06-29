@@ -43,7 +43,7 @@ Then when you create the mother stack, all the child stacks will be created as n
 
 ### What if I need to pass the outputs from one nested stack to another?
 
-Good question. You use `"Fn::GetAtt"` to get the `Outputs` from one stack to another. Like this:
+You use `"Fn::GetAtt"` to get the `Outputs` from one stack to another. Like this:
 
 Resource1 template:
 ```json
@@ -84,7 +84,8 @@ You pass the values you need inside the mother (`root-stack`) template. In this 
 ```
 Note:
 - `Resource2` has to depend on `Resource1`.
-- The name of the output (`PassToResource2`) must match in both `Resource1` and `root-stack` templates.
+- The name of the output (`PassToResource2`) must be the same in both `Resource1` and `root-stack` templates.
+- Be ware of **circular dependency between resources**.
 
 So you can use the values inside Resource2 template like this:
 ```json
@@ -96,3 +97,7 @@ So you can use the values inside Resource2 template like this:
     ...
 }
 ```
+
+### What about cross stack references?
+
+Actually, there are cross stack references between the DynamoDB stack and the API Gateway stack.

@@ -244,3 +244,20 @@ For consistency, I'll keep the `.json` format. I know it's easier to write comme
     // Return values so other stacks can use
 }
 ```
+
+### Cognito Stack
+
+```json
+"Resources": {
+    // The properties of the User Pool are self-explanatory.
+    "UserPool": {},
+    // The properties of the User Pool Client are also self-explanatory.
+    "UserPoolClient": {}
+},
+
+"Outputs": {
+    // Return values so other stacks can use.
+}
+```
+
+**NOTE**: Even though Identity Pool is part of Cognito, it requires values from other stacks so it's better to have its own stack to prevent **circular dependency between resources**. In this case, if we define Identity Pool in Cognito stack, it will need the API Gateway ID but the API Gateway template needs User Pool ARN.
