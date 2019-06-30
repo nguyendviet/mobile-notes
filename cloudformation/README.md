@@ -6,15 +6,8 @@ If you want to go deeper into the stacks, go [here](../docs/full-explanation.md)
 
 ## Step 1: Set up your template bucket
 After cloning this repository:
-- Create a bucket that will contain all the templates (`.json` files). Don't make this bucket public unless you want to share your templates.
-- You can use a CloudFormation template, the CLI or the Console to create this bucket.
-- I recommend you turn on Version Control and Server access logging for this bucket if you plan to keep using this bucket for more templates in the future.
+- Create a bucket that will contain all the templates (`.json` files). [[*](#in-step-1)]
 - Upload all template (`.json` files) in this folder `./cloudformation`, except `root-stack.json` because you don't need it in the bucket.
-
-:question:
-1. Wait. Why would I use nested stack? It seems like more work. => [See answer](../docs/why-nested-stack.md).
-1. What about cross stack references? => [See answer](../docs/why-cross-stack.md).
-
 
 ## Step 2: Deploy the templates
 - Make sure you have all the permissions you need to all the services that these nested-stack templates will create: CloudFormation, S3, Cognito, API Gateway, Lambda, DynamoDB, IAM.
@@ -24,12 +17,11 @@ After cloning this repository:
 ```bash
 aws cloudformation create-stack --stack-name <YOUR_STACK_NAME> --template-body file://<PATH_TO_THE_ROOT_STACK_TEMPLATE>/root-stack.json --capabilities CAPABILITY_IAM
 ```
-- Then wait. You can check the status of the creation of the nested stack in your Console.
+- Go to the Console to check the status of the creation of the nested stack.
 - Once your stack (the parent stack, not the nested ones) has the status `CREATE_COMPLETE`, go to its Outputs, you should be able to see all the variables you need for your React code, and also YOUR-APP-URL (`WebsiteUrl`).
 
 ## Step 3: Set up the app and test locally
-- Go to AWS Console > Lambda > Lambda Function created by the nested stack template > Function code > Code entry type > Select Upload a .zip file then choose the file `./cloudformation/lambda/lambda.zip`. Then remember to Save your function. 
-- *I know there are other ways to deploy your Lambda code like using SAM, or uploading the .zip file to an S3 bucket so you can use CloudFormation template to retrieve the .zip file from that bucket to your Lambda function, but I'll leave that for you to explore.* 
+- Go to AWS Console > Lambda > Lambda Function created by the nested stack template > Function code > Code entry type > Select Upload a .zip file then choose the file `./cloudformation/lambda/lambda.zip`. Then remember to Save your function. [[*](#in-step-3)]
 - Copy the values you need for the file `aws-variables.js` inside this project: `./mobile-notes/client/src/lib/aws-variables.js`
 ```javascript
 export default {
@@ -60,7 +52,7 @@ $ yarn install
 ```
 $ yarn build
 ```
-- Copy the content inside the build folder to your S3 bucket (you don't have to exclude .DS_Store if you run on Linux, I pasted the command here for Mac users' convenience):
+- Copy the content inside the build folder to your S3 bucket [[*](#in-step-3)]:
 ```
 $ aws s3 cp <PATH>/build s3://<YOUR_S3_WEBSITE_BUCKET> --recursive --exclude ".DS_Store"
 ```
@@ -79,4 +71,20 @@ $ yarn start
 - Use [SAM](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html) to develop your Serverless app.
 - Use [taskcat](https://github.com/aws-quickstart/taskcat) to test your CloudFormation templates.
 - Use custom bash scripts and alias to save time. [See examples](../docs/bash-functions.md).
-- Or go further and [create a pipeline to automate your website deployment](https://www.linkedin.com/pulse/provision-your-pipeline-automate-static-site-aws-viet-nguyen/).
+- Go further and [create a pipeline to automate your website deployment](https://www.linkedin.com/pulse/provision-your-pipeline-automate-static-site-aws-viet-nguyen/).
+
+## A few notes:
+
+### In step 1:
+- You can use a CloudFormation template, the CLI or the Console to create the bucket.
+- Don't make the bucket public unless you want to share your templates.
+- I recommend you turn on Version Control and Server access logging for the bucket if you plan to keep using it for more templates in the future.
+
+:thinking:
+1. Wait. Why would I use nested stack? It seems like more work. => [See answer](../docs/why-nested-stack.md).
+1. What about cross stack references? => [See answer](../docs/why-cross-stack.md).
+
+### In step 3:
+- I know there are other ways to deploy your Lambda code like using SAM, or uploading the .zip file to an S3 bucket so you can use CloudFormation template to retrieve the .zip file from that bucket to your Lambda function, but I'll leave that for you to explore.
+- If you set up the app manually following my previous post on LinkedIn, you might notice that the Lambda code is slighly different: instead of using a fixed value for the DynamoDB table (from AWS blog code), I modified it so the code takes the Lambda environment value `TABLE_NAME` which is better.
+- You don't have to exclude .DS_Store if you run on Linux, I pasted the command here for Mac users' convenience.
