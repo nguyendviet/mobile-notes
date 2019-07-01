@@ -62,6 +62,7 @@ Resource1 template:
 ```
 
 You pass the values you need inside the mother (`root-stack`) template. In this case, from Resource1 to Resource2:
+
 ```json
 "Resources": {
     "Resource1": {
@@ -82,12 +83,14 @@ You pass the values you need inside the mother (`root-stack`) template. In this 
     }
 }
 ```
-Note:
+
+Note that:
 - `Resource2` has to depend on `Resource1`.
 - The name of the output (`PassToResource2`) must be the same in both `Resource1` and `root-stack` templates.
 - Be ware of **circular dependency between resources**.
 
 So you can use the values inside Resource2 template like this:
+
 ```json
 "Parameters" : {
     "ParameterOfResource2": {
@@ -100,4 +103,45 @@ So you can use the values inside Resource2 template like this:
 
 ### What about cross stack references?
 
-Actually, there are cross stack references between the DynamoDB stack and the API Gateway stack.
+From [AWS docs](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/walkthrough-crossstackref.html):
+> Cross-stack references let you use a layered or service-oriented architecture. **Instead of including all resources in a single stack**, you create related AWS resources in separate stacks; then you can refer to required resource outputs from other stacks.
+
+### How?
+
+Actually, there are [cross stack references between the DynamoDB stack and the API Gateway stack](https://github.com/nguyendviet/mobile-notes/blob/master/docs/why-cross-stack.md).
+
+If you want to send values from `Resource1` to `Resource2`:
+
+In `Resource1`, you export the value of a resource:
+
+```json
+"Outputs": {
+    "SomethingForResource2": {
+        "Value": {
+            "Fn::GetAtt": [
+                "SomeResource",
+                "Arn"
+            ]
+        },
+        "Export": {
+            "Name": {
+                "Fn::Sub": "${AWS::StackName}-SomeName"
+            }
+        }
+    }
+}
+```
+
+In `Resource2`, you import it using `"Fn::ImportValue"`:
+
+```json
+"SomeProperty": { 
+    "Fn::ImportValue": {
+        "Fn::Sub": "${Resource1Stack}-SomeName"
+    }
+}
+```
+
+Note that:
+- `Resource1` stack must be created before `Resource2`.
+- When you import in `Resource2` template, the stack name and the export name must be the same as when you export from `Resource1` stack. In this example, the template name of `Resource1` is `Resource1Stack` and the name of the exported resource is `SomeName`, so you have `"Fn::Sub": "${Resource1Stack}-SomeName"`.
