@@ -86,5 +86,5 @@ $ yarn start
 
 ### In step 3:
 - I know there are other ways to deploy your Lambda code like using SAM, or uploading the .zip file to an S3 bucket so you can use CloudFormation template to retrieve the .zip file from that bucket to your Lambda function, but I'll leave that for you to explore.
-- If you set up the app manually following my previous post on LinkedIn, you might notice that the Lambda code is slighly different: instead of using a fixed value for the DynamoDB table (from AWS blog code), I modified it so the code takes the Lambda environment value `TABLE_NAME` which is better.
+- If you set up the app manually following the guide [here](../README.md), you might notice that the Lambda code in `./cloudformation/lambda` is slighly different: instead of using a fixed value for the DynamoDB table (from AWS blog code), I modified it so the code takes the Lambda environment value `TABLE_NAME` to make the code reusable.
 - You don't have to exclude .DS_Store if you run on Linux, I pasted the command here for Mac users' convenience.

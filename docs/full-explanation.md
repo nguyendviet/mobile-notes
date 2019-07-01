@@ -261,3 +261,166 @@ For consistency, I'll keep the `.json` format. I know it's easier to write comme
 ```
 
 **NOTE**: Even though Identity Pool is part of Cognito, it requires values from other stacks so it's better to have its own stack to prevent **circular dependency between resources**. In this case, if we define Identity Pool in Cognito stack, it will need the API Gateway ID but the API Gateway template needs User Pool ARN.
+
+### API Gateway Stack
+
+```json
+"Resources": {
+    "BaseLambdaExecutionPolicy": {
+        // Allow Lambda to write Logs to CloudWatch
+    },
+    "LambdaRole": {
+        // Allow Lambda to do CRUD operations to DynamoDB
+    },
+    "LambdaFunction": {
+        "Properties": {
+            // There are different ways to get the
+            // Lambda code. Check AWS docs.
+            "Code": {}
+        }
+    },
+    // This is IMPORTANT:
+    // Without Lambda Permission, the API Gateway
+    // cannot invoke the Lambda function
+    // which results in a CORS error even if 
+    // you enable CORS in your methods.
+    // This also shows the API Gateway as the trigger
+    // of the Lambda function in the Console,
+    // slightly different if you do it manually.
+    // When you allow API Gateway to trigger Lambda manually,
+    // as described in the manual setup guide,
+    // the Console doesn't show it as the trigger.
+    "LambdaPermission": {
+        "Type": "AWS::Lambda::Permission",
+        "Description": "Permission for API GateWay to invoke Lambda.",
+        "Properties": {
+            "Action": "lambda:invokeFunction",
+            "FunctionName": {
+                "Fn::GetAtt": [
+                    "LambdaFunction",
+                    "Arn"
+                ]
+            },
+            "Principal": "apigateway.amazonaws.com",
+            "SourceArn": {
+                "Fn::Join": [
+                    "",
+                    [
+                        "arn:aws:execute-api:",
+                        {
+                            "Ref": "AWS::Region"
+                        },
+                        ":",
+                        {
+                            "Ref": "AWS::AccountId"
+                        },
+                        ":",
+                        {
+                            "Ref": "ApiGateway"
+                        },
+                        "/*"
+                    ]
+                ]
+            }
+        }
+    },
+    "ApiGatewayRole": {
+        // Role for API Authorizer.
+    },
+    "GatewayAuthorizer": {
+        // Use Cognito User Pool to authorise users
+    },
+    "resourceNotes": {
+        // URL /notes
+    },
+    "resourceNoteId": {
+        "Type" : "AWS::ApiGateway::Resource",
+        "Properties" : {
+            // URL /notes
+            "ParentId" : {
+                "Ref": "resourceNotes"
+            },
+            // URL /notes/{noteid}
+            "PathPart" : "{noteid}",
+        }
+    },
+    "methodNotesANY": {
+        // Method ANY of /notes
+        "Type": "AWS::ApiGateway::Method",
+        "DependsOn": "LambdaPermission",
+        "Properties": {
+            // IMPORTANT: this is the method that
+            // you use to call API Gateway
+            "HttpMethod": "ANY",
+            "Integration": {
+                "Type": "AWS_PROXY",
+                // IMPORTANT: this is the method that
+                // API Gateway uses to call Lambda.
+                // It must be POST
+                // Yeah, I know, it's confusing
+                "IntegrationHttpMethod": "POST",
+            }
+        }
+    },
+    "methodNotesOPTIONS": {
+        // Allow CORS for /notes
+    },
+    "methodNoteIdANY": {
+        // Method ANY of /notes/{noteid}
+    },
+    "methodNoteIdOPTIONS": {
+        // Allow CORS for /notes/{noteid}
+    },
+    "ApiGatewayDeployment": {
+        // Deploy with stage
+    }
+},
+
+"Outputs": {
+    // Return outputs for other stacks to use
+}
+```
+
+This template took me the most time to troubleshoot. I highly recommend using the Logs from API Gateway test, Lambda test and CloudWatch.
+
+### Identity Pool Stack
+
+```json
+"Resources": {
+    "IdentityPool": {
+        "Properties" : {
+            "CognitoIdentityProviders": [
+                {
+                    "ClientId": {
+                        "Ref": "AppClientId"
+                    },
+                    // The Provider Name is actually a
+                    // default value from creating
+                    // Cognito User Pool
+                    // In this case, I get it from
+                    // the root stack by using 
+                    // "Fn::GetAtt": [ "Cognito", "Outputs.ProviderName" ]
+                    // Check the Cognito stack to see
+                    // how the Provider Name is returned
+                    "ProviderName": {
+                        "Ref": "UserPoolProviderName"
+                    }
+                }
+            ],
+        }
+    },
+    "CognitoAuthRole": {
+        // Auth Role for API Gateway
+    },
+    "CognitoUnauthRole": {
+        // UnAuth Role for API Gateway
+    },
+    "IdentityPoolRoles": {
+        // Role for Identity Pool
+    }
+},
+
+"Outputs": {
+    // Return value for other stacks to use
+}
+```
