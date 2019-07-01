@@ -63,11 +63,11 @@ $ yarn start
 - You should be able to see the app on your browser (`localhost:3000`) and it will look like the one you set up manually if you have done it following the guide [here](../README.md).
 - Now you can create your account and start writing some notes to test.
 
-## Step 5: Try the app online
+## Step 4: Try the app online
 - Go to YOUR-APP-URL that you got from the Outputs of your root stack template. 
 - Now you can create another account or login (if you have already created one from your local host) and see your notes (if you have done so) pulled from `DynamoDB`.
 
-## Step 6: Get better at it
+## Step 5: Get better at it
 - Use [SAM](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html) to develop your Serverless app.
 - Use [taskcat](https://github.com/aws-quickstart/taskcat) to test your CloudFormation templates.
 - Use custom bash scripts and alias to save time. [See examples](../docs/bash-functions.md).
