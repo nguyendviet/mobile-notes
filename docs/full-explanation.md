@@ -185,6 +185,8 @@ For consistency, I'll keep the `.json` format. I know it's easier to write comme
 }
 ```
 
+**NOTE**: If you want to hook several apps to one database, it's better to add `"DeletionPolicy" : "Retain"`. [More details](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-attribute-deletionpolicy.html).
+
 ### Website Bucket Stack
 
 ```
@@ -210,6 +212,8 @@ For consistency, I'll keep the `.json` format. I know it's easier to write comme
     // Return some values so other stacks can use.
 }
 ```
+
+**NOTE**: bucket name must be unique.
 
 ### Upload Bucket Stack
 
@@ -244,6 +248,8 @@ For consistency, I'll keep the `.json` format. I know it's easier to write comme
     // Return values so other stacks can use
 }
 ```
+
+**NOTE**: bucket name must be unique.
 
 ### Cognito Stack
 
