@@ -12,6 +12,12 @@ If you want to go straight to the templates with detailed explanation, please [g
 
 {Root stack design diagram}
 
+The app is provisioned by 6 nested stacks which are controlled by a root stack. Instead of manually set up the app like in my previous article, you can spin up the whole architecture with one single command.
+
+```bash
+aws cloudformation create-stack --stack-name <YOUR_STACK_NAME> --template-body file://<PATH_TO_THE_ROOT_STACK_TEMPLATE>/root-stack.json --capabilities CAPABILITY_IAM
+```
+
 ### Why use nested stack?
 
 From [AWS docs](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-nested-stacks.html): 
@@ -151,3 +157,7 @@ In `Resource2`, you import it using `"Fn::ImportValue"`:
 Note that:
 - `Resource1` stack must be created before `Resource2` (therefore you don't need to upload the templates to an S3 bucket).
 - When you do import in `Resource2` template, the stack name and the export name must be the same as when you export from `Resource1` stack. In this example, the stack name of `Resource1` is `Resource1StackName` and the name of the exported resource is `SomeName`, so you have `"Fn::Sub": "${Resource1StackName}-SomeName"`.
+
+With Serverless architecture, Infrastructure as Code (CloudFormation) and Pipeline (CodeBuild and CodePipeline), you're free to focus on the design (front-end) of your applications and the business logic (back-end) of the apps.
+
+You can also get outside resources to help with the front-end (in S3) or the back-end (Lambda) with your architecture in place. The "helpers" don’t need to use a specific framework or language because the architecture is API-driven.
