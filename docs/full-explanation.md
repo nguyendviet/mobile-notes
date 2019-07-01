@@ -23,10 +23,10 @@ For consistency, I'll keep the `.json` format. I know it's easier to write comme
         }
     },
     "S3WebsiteReact": {
-        // This stack create the hosting website
+        // This stack creates the hosting website
     },
     "S3UploadBucket": {
-        // This stack create the upload bucket
+        // This stack creates the upload bucket
     },
     "Cognito": {
         "Properties": {
@@ -101,8 +101,7 @@ For consistency, I'll keep the `.json` format. I know it's easier to write comme
 
 "Outputs": {
     // The outputs section here is for convenience.
-    // It returns all the values you need for your
-    // app settings.
+    // It returns all the values you need for your app settings.
 }
 ```
 
