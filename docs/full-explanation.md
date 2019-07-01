@@ -3,7 +3,7 @@
 For consistency, I'll keep the `.json` format. I know it's easier to write comments with `.yaml`.
 
 ### Root Stack
-```json
+```
 "Resources": {
     // Each resource is a stack, hence the type
     "DynamoDBTable": {
@@ -108,7 +108,7 @@ For consistency, I'll keep the `.json` format. I know it's easier to write comme
 
 ### DynamoDB Stack
 
-```json
+```
 "Resources": {
     // Define the table with schema
     "DDBTable": {
@@ -187,7 +187,7 @@ For consistency, I'll keep the `.json` format. I know it's easier to write comme
 
 ### Website Bucket Stack
 
-```json
+```
 "Resources": {
     "S3Bucket": {
         "Properties": {
@@ -213,7 +213,7 @@ For consistency, I'll keep the `.json` format. I know it's easier to write comme
 
 ### Upload Bucket Stack
 
-```json
+```
 "Resources": {
     // This bucket is used as a storage
     // for our uploaded files.
@@ -247,7 +247,7 @@ For consistency, I'll keep the `.json` format. I know it's easier to write comme
 
 ### Cognito Stack
 
-```json
+```
 "Resources": {
     // The properties of the User Pool are self-explanatory.
     "UserPool": {},
@@ -264,7 +264,7 @@ For consistency, I'll keep the `.json` format. I know it's easier to write comme
 
 ### API Gateway Stack
 
-```json
+```
 "Resources": {
     "BaseLambdaExecutionPolicy": {
         // Allow Lambda to write Logs to CloudWatch
@@ -385,7 +385,7 @@ This template took me the most time to troubleshoot. I highly recommend using th
 
 ### Identity Pool Stack
 
-```json
+```
 "Resources": {
     "IdentityPool": {
         "Properties" : {
