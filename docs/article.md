@@ -1,4 +1,4 @@
-## Provison a full serverless app with CloudFormation nested stacks
+## Provision a full serverless app with CloudFormation nested stacks
 
 In this article, I'm going to walk you through the process of using CloudFormation nested stacks to create a full serverless app **following AWS best practices**. The app we're going to create is the Mobile Notes app which was described in my previous article: [Build a serverless app with React, Node.js and AWS](https://www.linkedin.com/pulse/build-serverless-app-react-nodejs-aws-viet-nguyen/):
 
@@ -91,7 +91,7 @@ You pass the values you need inside the mother (`root-stack`) template. In this 
 Note that:
 - `Resource2` has to depend on `Resource1`.
 - The name of the output (`PassToResource2`) must be the same in both `Resource1` and `root-stack` templates.
-- Be ware of **circular dependency between resources**.
+- Beware of **circular dependency between resources**.
 
 So you can use the values inside Resource2 template like this:
 
