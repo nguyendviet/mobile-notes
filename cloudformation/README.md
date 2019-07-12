@@ -13,7 +13,7 @@ After cloning this repository:
 - Make sure you have all the permissions you need to all the services that these nested-stack templates will create: CloudFormation, S3, Cognito, API Gateway, Lambda, DynamoDB, IAM.
 - Make sure you have the [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html) installed on your machine.
 - Change the `YOUR_TEMPLATE_BUCKET` value in file `./cloudformation/root-stack.json` with your real template bucket name that you created in **Step 1**.
-- Run:
+- Run [[*](#in-step-2)]:
 ```bash
 aws cloudformation create-stack --stack-name <YOUR_STACK_NAME> --template-body file://<PATH_TO_THE_ROOT_STACK_TEMPLATE>/root-stack.json --capabilities CAPABILITY_IAM
 ```
@@ -63,11 +63,11 @@ $ yarn start
 - You should be able to see the app on your browser (`localhost:3000`) and it will look like the one you set up manually if you have done it following the guide [here](../README.md).
 - Now you can create your account and start writing some notes to test.
 
-## Step 5: Try the app online
+## Step 4: Try the app online
 - Go to YOUR-APP-URL that you got from the Outputs of your root stack template. 
 - Now you can create another account or login (if you have already created one from your local host) and see your notes (if you have done so) pulled from `DynamoDB`.
 
-## Step 6: Get better at it
+## Step 5: Get better at it
 - Use [SAM](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html) to develop your Serverless app.
 - Use [taskcat](https://github.com/aws-quickstart/taskcat) to test your CloudFormation templates.
 - Use custom bash scripts and alias to save time. [See examples](../docs/bash-functions.md).
@@ -83,6 +83,10 @@ $ yarn start
 :thinking:
 1. Wait. Why would I use nested stack? It seems like more work. => [See answer](../docs/why-nested-stack.md).
 1. What about cross stack references? => [See answer](../docs/why-cross-stack.md).
+
+### In step 2:
+
+- Remember S3 bucket names must be unique, so change the bucket templates if you don't create the `root-stack` with a unique name.
 
 ### In step 3:
 - I know there are other ways to deploy your Lambda code like using SAM, or uploading the .zip file to an S3 bucket so you can use CloudFormation template to retrieve the .zip file from that bucket to your Lambda function, but I'll leave that for you to explore.

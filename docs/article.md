@@ -1,3 +1,5 @@
+## Provision a full serverless app with CloudFormation nested stacks
+
 In this article, I'm going to walk you through the process of using CloudFormation nested stacks to create a full serverless app **following AWS best practices**. The app we're going to create is the Mobile Notes app which was described in my previous article: [Build a serverless app with React, Node.js and AWS](https://www.linkedin.com/pulse/build-serverless-app-react-nodejs-aws-viet-nguyen/):
 
 1. An Amazon Cognito User Pool authorizer is associated with a RESTful API hosted in Amazon API Gateway. The authorizer authenticates **every** API call made from a mobile app by leveraging a JSON Web Token (JWT) passed in the API call headers.
@@ -7,6 +9,14 @@ In this article, I'm going to walk you through the process of using CloudFormati
 {Serverless Diagram}
 
 If you want to go straight to the templates with detailed explanation, please [go to my repository](https://github.com/nguyendviet/mobile-notes/tree/master/cloudformation).
+
+{Root stack design diagram}
+
+The app is provisioned by 6 nested stacks which are controlled by a root stack. Instead of manually set up the app like in my previous article, you can spin up the whole architecture with one single command.
+
+```bash
+aws cloudformation create-stack --stack-name <YOUR_STACK_NAME> --template-body file://<PATH_TO_THE_ROOT_STACK_TEMPLATE>/root-stack.json --capabilities CAPABILITY_IAM
+```
 
 ### Why use nested stack?
 
@@ -62,6 +72,7 @@ Resource1 template:
 ```
 
 You pass the values you need inside the mother (`root-stack`) template. In this case, from Resource1 to Resource2:
+
 ```json
 "Resources": {
     "Resource1": {
@@ -82,12 +93,14 @@ You pass the values you need inside the mother (`root-stack`) template. In this 
     }
 }
 ```
-Note:
+
+Note that:
 - `Resource2` has to depend on `Resource1`.
 - The name of the output (`PassToResource2`) must be the same in both `Resource1` and `root-stack` templates.
-- Be ware of **circular dependency between resources**.
+- Beware of **circular dependency between resources**.
 
 So you can use the values inside Resource2 template like this:
+
 ```json
 "Parameters" : {
     "ParameterOfResource2": {
@@ -100,4 +113,51 @@ So you can use the values inside Resource2 template like this:
 
 ### What about cross stack references?
 
-Actually, there are cross stack references between the DynamoDB stack and the API Gateway stack.
+From [AWS docs](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/walkthrough-crossstackref.html):
+> Cross-stack references let you use a layered or service-oriented architecture. **Instead of including all resources in a single stack**, you create related AWS resources in separate stacks; then you can refer to required resource outputs from other stacks.
+
+If you're familiar with *React components* or *Node.js module.exports function*, you'll love cross stack references. They let you break down a gigantic template into small chunks and help you manage them easily.
+
+### How?
+
+Actually, there are [cross stack references between the DynamoDB stack and the API Gateway stack](https://github.com/nguyendviet/mobile-notes/blob/master/docs/why-cross-stack.md).
+
+If you want to send values from `Resource1` to `Resource2`:
+
+In `Resource1`, you export the value of a resource:
+
+```json
+"Outputs": {
+    "SomethingForResource2": {
+        "Value": {
+            "Fn::GetAtt": [
+                "SomeResource",
+                "Arn"
+            ]
+        },
+        "Export": {
+            "Name": {
+                "Fn::Sub": "${AWS::StackName}-SomeName"
+            }
+        }
+    }
+}
+```
+
+In `Resource2`, you import it using `"Fn::ImportValue"`:
+
+```json
+"SomeProperty": { 
+    "Fn::ImportValue": {
+        "Fn::Sub": "${Resource1StackName}-SomeName"
+    }
+}
+```
+
+Note that:
+- `Resource1` stack must be created before `Resource2` (therefore you don't need to upload the templates to an S3 bucket).
+- When you do import in `Resource2` template, the stack name and the export name must be the same as when you export from `Resource1` stack. In this example, the stack name of `Resource1` is `Resource1StackName` and the name of the exported resource is `SomeName`, so you have `"Fn::Sub": "${Resource1StackName}-SomeName"`.
+
+With Serverless architecture, Infrastructure as Code (CloudFormation) and Pipeline (CodeBuild and CodePipeline), you're free to focus on the design (front-end) of your applications and the business logic (back-end) of the apps.
+
+You can also get outside resources to help with the front-end (in S3) or the back-end (Lambda) with your architecture in place. The "helpers" don’t need to use a specific framework or language because the architecture is API-driven.

@@ -5,7 +5,7 @@ From [AWS docs](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/w
 
 If you're like me (I hate skimming through stack templates with thousands of lines) you'll love cross stack references. They come in handy. If you're familiar with *React components* or *Node.js module.exports function*, you'll love cross stack references. They let you break down a gigantic template into small chunks and help you manage them easily.
 
-I actually use cross stack reference in the `api-gateway` stack: 
+I actually use cross stack references in the `api-gateway` stack: 
 - Import the DynamoDB Table ARN (line 91) to create a policy for my Lambda function to write to the table.
 - Import the DynamoDB Table Name (line 117) to create a Lambda environment variable.
 
